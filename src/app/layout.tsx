@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { PT_Sans_Narrow, Pacifico } from "next/font/google";
 // import "./globals.css";
 import "./globals.css";
+import AppProvider from "@/provider/app-provider";
 
 //eslint-disable-next-line @typescript-eslint/no-unused-vars
 const narrow = PT_Sans_Narrow({
@@ -31,9 +32,13 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body className={cn(narrow.className, "antialiased")}>{children}</body>
-      </html>
+      <AppProvider>
+        <html lang="en">
+          <body className={cn(narrow.className, "antialiased")}>
+            {children}
+          </body>
+        </html>
+      </AppProvider>
     </ClerkProvider>
   );
 }
