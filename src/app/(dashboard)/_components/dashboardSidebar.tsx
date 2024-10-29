@@ -1,5 +1,12 @@
 "use client";
 
+// Packages
+import { SignedIn, useClerk, useUser } from "@clerk/nextjs";
+import { ChevronRight, LogOut, SquareKanban } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+// Local imports
 import Logo from "@/components/common/logo/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -23,10 +30,6 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { navMenus } from "@/data/menus";
-import { SignedIn, useClerk, useUser } from "@clerk/nextjs";
-import { ChevronRight, LogOut, SquareKanban } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 const DashboardSidebar = () => {
   const pathname = usePathname();
