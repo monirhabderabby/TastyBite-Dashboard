@@ -32,7 +32,7 @@ export const navMenus = [
         isActive: false,
         items: [
             {
-                title: "Create Menu",
+                title: "Create New",
                 url: "/menu/create",
             },
             {
