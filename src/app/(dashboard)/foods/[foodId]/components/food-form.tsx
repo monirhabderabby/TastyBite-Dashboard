@@ -28,8 +28,19 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronsUpDown, MapPin } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
+
+const sizesItemSchema = z.object({
+    size: z.string().min(1, "Size is required"),
+    price: z.number().min(1, "Price is required"),
+    description: z.string().min(1, "Description is required"),
+});
+
+const extraItemSchema = z.object({
+    name: z.string().min(1, "Extra item name is required"),
+    extra_price: z.number().min(1, "Extra item price is required"),
+});
 
 const FormSchema = z.object({
     name: z.string().min(3, {
@@ -38,7 +49,7 @@ const FormSchema = z.object({
     description: z.string().min(5, {
         message: "Food description required.",
     }),
-    price: z.string().min(1, {
+    price: z.number().min(1, {
         message: "Price is required.",
     }),
     images: z.array(z.string().min(1)).min(1, {
@@ -47,6 +58,10 @@ const FormSchema = z.object({
     menuId: z.string().min(1, {
         message: "Menu is required",
     }),
+    sizes: z
+        .array(sizesItemSchema)
+        .min(1, "At least one size item is required"),
+    extras: z.array(extraItemSchema).optional(),
 });
 
 const FoodForm = () => {
@@ -59,9 +74,25 @@ const FoodForm = () => {
             name: "",
             description: "",
             images: [],
-            price: "",
+            price: 0,
             menuId: "",
+            sizes: [{ size: "", price: 0, description: "" }],
+            extras: [{ name: "", extra_price: 0 }],
         },
+    });
+
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "sizes",
+    });
+
+    const {
+        fields: extrasFields,
+        append: extrasAppend,
+        remove: extrasRemove,
+    } = useFieldArray({
+        control: form.control,
+        name: "extras",
     });
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -144,6 +175,7 @@ const FoodForm = () => {
                                     </FormLabel>
                                     <FormControl>
                                         <Input
+                                            type="number"
                                             placeholder="Food Price"
                                             {...field}
                                         />
@@ -228,6 +260,167 @@ const FoodForm = () => {
                             )}
                         />
                     </div>
+
+                    {/* Sizes input fields */}
+                    <div>
+                        <div>
+                            <p className="text-xl font-semibold mb-2">
+                                Provide available Sizes
+                            </p>
+                        </div>
+                        {fields.map((field, index) => (
+                            <div
+                                key={field.id}
+                                className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5"
+                            >
+                                <FormField
+                                    control={form.control}
+                                    name={`sizes.${index}.size`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Size</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Input size"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name={`sizes.${index}.price`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Price</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Input price"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name={`sizes.${index}.description`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Description</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Input description"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                {index > 0 && (
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        onClick={() => remove(index)}
+                                        className="w-1/4"
+                                    >
+                                        Remove
+                                    </Button>
+                                )}
+                            </div>
+                        ))}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                                append({
+                                    size: "",
+                                    price: 0,
+                                    description: "",
+                                })
+                            }
+                        >
+                            Add Size
+                        </Button>
+                    </div>
+                    {/* sizes fields end */}
+
+                    {/* Extras input fields */}
+                    <div>
+                        <div>
+                            <p className="text-xl font-semibold mb-2">
+                                Provide available Extra Elements
+                            </p>
+                        </div>
+                        {extrasFields.map((field, index) => (
+                            <div
+                                key={field.id}
+                                className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5"
+                            >
+                                <FormField
+                                    control={form.control}
+                                    name={`extras.${index}.name`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Element name</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Element name"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name={`extras.${index}.extra_price`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Price</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Element price"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                {index > 0 && (
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        onClick={() => extrasRemove(index)}
+                                        className="w-1/4"
+                                    >
+                                        Remove
+                                    </Button>
+                                )}
+                            </div>
+                        ))}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                                extrasAppend({
+                                    name: "",
+                                    extra_price: 0,
+                                })
+                            }
+                        >
+                            Add Extra Element
+                        </Button>
+                    </div>
+                    {/* Extras fields end */}
 
                     <FormField
                         control={form.control}
