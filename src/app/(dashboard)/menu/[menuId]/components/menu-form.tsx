@@ -12,7 +12,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { useCreateMenuMutation } from "@/redux/features/menu/menuApi";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -32,6 +35,8 @@ const MenuForm = () => {
     const formTitle = "Create Menu";
     const description = "Add a new menu";
 
+    const { toast } = useToast();
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -41,9 +46,25 @@ const MenuForm = () => {
         },
     });
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
+    // Create menu api call
+    const [createMenu, { isLoading, error }] = useCreateMenuMutation();
+
+    // Form submit function
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data);
+        try {
+            await createMenu(data);
+        } catch (err) {
+            console.error("it's err", err);
+            toast({
+                variant: "destructive",
+                title: "Error",
+            });
+            toast({ description: "Error happened" });
+        }
     }
+
+    console.log("Error from back :", error);
 
     return (
         <div>
@@ -123,7 +144,12 @@ const MenuForm = () => {
                         )}
                     />
 
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit" disabled={isLoading}>
+                        Submit
+                        {isLoading && (
+                            <Loader className="w-5 h-5 animate-spin" />
+                        )}
+                    </Button>
                 </form>
             </Form>
         </div>
