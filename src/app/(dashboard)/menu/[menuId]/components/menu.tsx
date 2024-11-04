@@ -5,7 +5,9 @@ import { Loader } from "lucide-react";
 import MenuForm from "./menu-form";
 
 const Menu = ({ menuId }: { menuId: string }) => {
-    const { data, isLoading } = useGetSingleMenuQuery(menuId);
+    const { data, isLoading } = useGetSingleMenuQuery(menuId, {
+        skip: menuId === "create",
+    });
 
     if (isLoading) {
         return (
@@ -14,11 +16,10 @@ const Menu = ({ menuId }: { menuId: string }) => {
             </div>
         );
     }
-    console.log(data?.data);
 
     return (
         <div>
-            <MenuForm menu={data?.data} />
+            <MenuForm menu={menuId !== "create" ? data?.data : undefined} />
         </div>
     );
 };

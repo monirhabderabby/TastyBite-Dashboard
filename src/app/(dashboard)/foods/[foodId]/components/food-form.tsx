@@ -27,7 +27,10 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { useCreateFoodMutation } from "@/redux/features/food/foodApi";
+import {
+    useCreateFoodMutation,
+    useUpdateFoodMutation,
+} from "@/redux/features/food/foodApi";
 import { useGetAllMenusQuery } from "@/redux/features/menu/menuApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronsUpDown, Loader, MapPin } from "lucide-react";
@@ -70,28 +73,63 @@ const FormSchema = z.object({
     extras: z.array(extraItemSchema).optional(),
 });
 
-const FoodForm = () => {
-    const formTitle = "Create Food";
-    const description = "Add a new food";
+interface singleFoodProps {
+    _id: string;
+    name: string;
+    description: string;
+    price: number;
+    images: string[];
+    menuId: string;
+    sizes: [
+        {
+            size: string;
+            price: number;
+            description: string;
+        }
+    ];
+    extras: [
+        {
+            name: string;
+            extra_price: number;
+        }
+    ];
+}
+
+const FoodForm = ({ food }: { food: singleFoodProps }) => {
+    const formTitle = food ? "Update Food" : "Create Food";
+    const description = food ? "Update the food" : "Add a new food";
 
     const router = useRouter();
 
     // Menu data retrieve
     const { data: menuData } = useGetAllMenusQuery({});
-    // Create food mutation
-    const [createFood, { isLoading, isSuccess, data: createdFoodInfo }] =
-        useCreateFoodMutation();
+    // Food create mutation
+    const [
+        createFood,
+        { isLoading, isError, isSuccess, data: createdFoodInfo },
+    ] = useCreateFoodMutation();
+    // Food update mutation
+    const [
+        updateFood,
+        {
+            isLoading: foodUpdateLoading,
+            isSuccess: foodUpdateSuccess,
+            isError: foodUpdateError,
+        },
+    ] = useUpdateFoodMutation();
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            name: "",
-            description: "",
-            images: [],
-            price: 0,
-            menuId: "",
-            sizes: [{ size: "", price: 0, description: "" }],
-            extras: [{ name: "", extra_price: 0 }],
+            name: food ? food.name : "",
+            description: food ? food.description : "",
+            images: food ? food.images : [],
+            price: food ? food.price : 0,
+            menuId: food ? food.menuId : "",
+            sizes: food
+                ? food.sizes
+                : [{ size: "", price: 0, description: "" }],
+            extras: food ? food.extras : [{ name: "", extra_price: 0 }],
         },
     });
 
@@ -113,7 +151,11 @@ const FoodForm = () => {
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data);
         try {
-            await createFood(data);
+            if (food) {
+                await updateFood({ body: data, id: food._id });
+            } else {
+                await createFood(data);
+            }
         } catch (err) {
             console.error("Error :", err);
             toast.error("Failed to create food");
@@ -126,7 +168,26 @@ const FoodForm = () => {
             form.reset();
             router.push("/foods");
         }
-    }, [form, isSuccess, router, createdFoodInfo]);
+        if (foodUpdateSuccess) {
+            toast.success("Food updated successfully");
+            form.reset();
+            router.push("/foods");
+        }
+        if (isError) {
+            toast.error("Failed to create food");
+        }
+        if (foodUpdateError) {
+            toast.error("Failed to update food");
+        }
+    }, [
+        createdFoodInfo,
+        foodUpdateError,
+        foodUpdateSuccess,
+        form,
+        isError,
+        isSuccess,
+        router,
+    ]);
 
     return (
         <div>
@@ -495,9 +556,12 @@ const FoodForm = () => {
                         )}
                     />
 
-                    <Button type="submit" disabled={isLoading}>
-                        Submit
-                        {isLoading && (
+                    <Button
+                        type="submit"
+                        disabled={isLoading || foodUpdateLoading}
+                    >
+                        {food ? "Update" : "Submit"}
+                        {(isLoading || foodUpdateLoading) && (
                             <Loader className="w-5 h-5 animate-spin" />
                         )}
                     </Button>

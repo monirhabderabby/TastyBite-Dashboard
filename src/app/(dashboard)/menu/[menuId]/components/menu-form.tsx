@@ -174,12 +174,14 @@ const MenuForm = ({ menu }: { menu: foodMenuProps }) => {
                         )}
                     />
 
-                    <Button type="submit" disabled={isLoading}>
+                    <Button
+                        type="submit"
+                        disabled={isLoading || updateMenuLoading}
+                    >
                         {menu ? "Update" : "Submit"}
-                        {isLoading ||
-                            (updateMenuLoading && (
-                                <Loader className="w-5 h-5 animate-spin" />
-                            ))}
+                        {(isLoading || updateMenuLoading) && (
+                            <Loader className="w-5 h-5 animate-spin" />
+                        )}
                     </Button>
                 </form>
             </Form>
