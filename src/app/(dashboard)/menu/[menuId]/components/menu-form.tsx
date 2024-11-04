@@ -12,12 +12,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
-import { useCreateMenuMutation } from "@/redux/features/menu/menuApi";
+import {
+    useCreateMenuMutation,
+    useUpdateMenuMutation,
+} from "@/redux/features/menu/menuApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
+import { foodMenuProps } from "../../components/menu-columns";
 
 const FormSchema = z.object({
     name: z.string().min(3, {
@@ -31,40 +37,64 @@ const FormSchema = z.object({
     }),
 });
 
-const MenuForm = () => {
-    const formTitle = "Create Menu";
-    const description = "Add a new menu";
+const MenuForm = ({ menu }: { menu: foodMenuProps }) => {
+    const formTitle = menu ? "Update Menu" : "Create Menu";
+    const description = menu ? "Update this menu" : "Add a new menu";
 
-    const { toast } = useToast();
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            name: "",
-            description: "",
-            image: "",
+            name: menu ? menu.name : "",
+            description: menu ? menu.description : "",
+            image: menu ? menu.image : "",
         },
     });
 
-    // Create menu api call
-    const [createMenu, { isLoading, error }] = useCreateMenuMutation();
+    // Create menu mutation
+    const [createMenu, { isLoading, isSuccess, isError }] =
+        useCreateMenuMutation();
+    const [
+        updateMenu,
+        {
+            isLoading: updateMenuLoading,
+            isSuccess: updateMenuSuccess,
+            isError: updateMenuError,
+        },
+    ] = useUpdateMenuMutation();
 
     // Form submit function
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data);
         try {
-            await createMenu(data);
+            if (menu) {
+                await updateMenu({ body: data, id: menu._id });
+            } else {
+                await createMenu(data);
+            }
         } catch (err) {
-            console.error("it's err", err);
-            toast({
-                variant: "destructive",
-                title: "Error",
-            });
-            toast({ description: "Error happened" });
+            console.error("Error :", err);
         }
     }
 
-    console.log("Error from back :", error);
+    useEffect(() => {
+        if (isSuccess) {
+            toast.success("Menu created successfully");
+            form.reset();
+            router.push("/menu");
+        }
+        if (updateMenuSuccess) {
+            toast.success("Menu updated successfully");
+            form.reset();
+            router.push("/menu");
+        }
+        if (isError) {
+            toast.error("Failed to create menu");
+        }
+        if (updateMenuError) {
+            toast.error("Failed to update menu");
+        }
+    }, [form, isSuccess, updateMenuSuccess, router, isError, updateMenuError]);
 
     return (
         <div>
@@ -145,10 +175,11 @@ const MenuForm = () => {
                     />
 
                     <Button type="submit" disabled={isLoading}>
-                        Submit
-                        {isLoading && (
-                            <Loader className="w-5 h-5 animate-spin" />
-                        )}
+                        {menu ? "Update" : "Submit"}
+                        {isLoading ||
+                            (updateMenuLoading && (
+                                <Loader className="w-5 h-5 animate-spin" />
+                            ))}
                     </Button>
                 </form>
             </Form>

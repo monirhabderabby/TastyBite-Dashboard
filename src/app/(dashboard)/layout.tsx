@@ -1,4 +1,3 @@
-import { Toaster } from "@/components/ui/toaster";
 import DashboardSidebar from "./_components/dashboardSidebar";
 // import "./globals.css";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -14,10 +13,7 @@ export default function RootLayout({
                 <div className="w-72">
                     <DashboardSidebar />
                 </div>
-                <div className="flex-1 mt-[61px] border-t p-5">
-                    {children}
-                    <Toaster />
-                </div>
+                <div className="flex-1 mt-[61px] border-t p-5">{children}</div>
             </div>
         </SidebarProvider>
     );
