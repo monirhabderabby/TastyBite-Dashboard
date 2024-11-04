@@ -48,7 +48,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                     acceptedFiles.map(async (file) => {
                         const res = await edgestore.publicFiles.upload({
                             file,
-                            input: {},
                         });
                         return res?.url;
                     })
