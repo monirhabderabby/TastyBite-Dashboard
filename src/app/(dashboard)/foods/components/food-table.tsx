@@ -17,19 +17,21 @@ import { DataTable } from "@/components/ui/data-table";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { DataTableViewOptions } from "@/components/ui/data-table-view-options";
 import { Input } from "@/components/ui/input";
-import { useGetAllMenusQuery } from "@/redux/features/menu/menuApi";
-import { MenuColumns } from "./menu-columns";
+import { useGetAllFoodsQuery } from "@/redux/features/food/foodApi";
+import { FoodColumns } from "./food-columns";
 
 // Define the type for a food menu item
-interface FoodMenuItem {
+interface FoodItem {
     _id: string;
     name: string;
     description: string;
     image: string;
+    price: number;
+    menu: string;
 }
 
-const MenuTable: React.FC = () => {
-    const { data, isLoading } = useGetAllMenusQuery({});
+const FoodTable: React.FC = () => {
+    const { data, isLoading } = useGetAllFoodsQuery({});
 
     if (isLoading) {
         return <TableSkeleton />;
@@ -37,16 +39,16 @@ const MenuTable: React.FC = () => {
 
     return (
         <div>
-            <TableContainer data={data.data} columns={MenuColumns} />
+            <TableContainer data={data.data} columns={FoodColumns} />
         </div>
     );
 };
 
-export default MenuTable;
+export default FoodTable;
 
 interface TableContainerProps {
-    data: FoodMenuItem[];
-    columns: ColumnDef<FoodMenuItem>[];
+    data: FoodItem[];
+    columns: ColumnDef<FoodItem>[];
 }
 
 const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {

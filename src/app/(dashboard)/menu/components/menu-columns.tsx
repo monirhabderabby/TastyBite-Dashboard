@@ -3,7 +3,7 @@ import Image from "next/image";
 import MenuRowActions from "./menu-row-actions";
 
 export type foodMenuProps = {
-    id: string;
+    _id: string;
     name: string;
     description: string;
     image: string;
@@ -23,7 +23,7 @@ export const MenuColumns: ColumnDef<foodMenuProps>[] = [
                         alt="Image"
                         width={80}
                         height={60}
-                        className="bg-gray-100 rounded-md"
+                        className="bg-gray-100 max-h-[70px] rounded-md"
                     />
                 </div>
             );

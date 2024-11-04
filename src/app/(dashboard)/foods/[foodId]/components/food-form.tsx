@@ -1,5 +1,6 @@
 "use client";
 
+import { foodMenuProps } from "@/app/(dashboard)/menu/components/menu-columns";
 import ImageUpload from "@/components/common/file-upload/single-image-upload-with-edgestore";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,20 +27,25 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useCreateFoodMutation } from "@/redux/features/food/foodApi";
+import { useGetAllMenusQuery } from "@/redux/features/menu/menuApi";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronsUpDown, MapPin } from "lucide-react";
+import { ChevronsUpDown, Loader, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const sizesItemSchema = z.object({
     size: z.string().min(1, "Size is required"),
-    price: z.number().min(1, "Price is required"),
+    price: z.coerce.number().min(1, "Price must be a positive number"),
     description: z.string().min(1, "Description is required"),
 });
 
 const extraItemSchema = z.object({
     name: z.string().min(1, "Extra item name is required"),
-    extra_price: z.number().min(1, "Extra item price is required"),
+    extra_price: z.coerce.number().min(1, "Extra item price is required"),
 });
 
 const FormSchema = z.object({
@@ -49,8 +55,8 @@ const FormSchema = z.object({
     description: z.string().min(5, {
         message: "Food description required.",
     }),
-    price: z.number().min(1, {
-        message: "Price is required.",
+    price: z.coerce.number().min(1, {
+        message: "Price must be a positive number.",
     }),
     images: z.array(z.string().min(1)).min(1, {
         message: "Food images are required.",
@@ -68,6 +74,14 @@ const FoodForm = () => {
     const formTitle = "Create Food";
     const description = "Add a new food";
 
+    const router = useRouter();
+
+    // Menu data retrieve
+    const { data: menuData } = useGetAllMenusQuery({});
+    // Create food mutation
+    const [createFood, { isLoading, isSuccess, data: createdFoodInfo }] =
+        useCreateFoodMutation();
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -81,11 +95,11 @@ const FoodForm = () => {
         },
     });
 
+    // Sizes & Extras field array
     const { fields, append, remove } = useFieldArray({
         control: form.control,
         name: "sizes",
     });
-
     const {
         fields: extrasFields,
         append: extrasAppend,
@@ -95,16 +109,24 @@ const FoodForm = () => {
         name: "extras",
     });
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
+    // Submit form
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data);
+        try {
+            await createFood(data);
+        } catch (err) {
+            console.error("Error :", err);
+            toast.error("Failed to create food");
+        }
     }
 
-    const menus = [
-        { value: "Burger", label: "Burger" },
-        { value: "Pizza", label: "Pizza" },
-        { value: "Pasta", label: "Pasta" },
-        { value: "Drink", label: "Drink" },
-    ];
+    useEffect(() => {
+        if (isSuccess) {
+            toast.success(createdFoodInfo?.message);
+            form.reset();
+            router.push("/foods");
+        }
+    }, [form, isSuccess, router, createdFoodInfo]);
 
     return (
         <div>
@@ -178,6 +200,11 @@ const FoodForm = () => {
                                             type="number"
                                             placeholder="Food Price"
                                             {...field}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    e.target.valueAsNumber
+                                                )
+                                            }
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -207,49 +234,61 @@ const FoodForm = () => {
                                                     )}
                                                 >
                                                     {field.value
-                                                        ? menus.find(
-                                                              (menu) =>
-                                                                  menu.value ===
+                                                        ? menuData?.data.find(
+                                                              (
+                                                                  menu: foodMenuProps
+                                                              ) =>
+                                                                  menu._id ===
                                                                   field.value
-                                                          )?.label
+                                                          )?.name
                                                         : "Select menu"}
                                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                                 </Button>
                                             </FormControl>
                                         </PopoverTrigger>
-                                        <PopoverContent className="w-full p-0">
+                                        <PopoverContent className="w-60 p-0">
                                             <Command>
-                                                <CommandInput placeholder="Search country..." />
+                                                <CommandInput placeholder="Search menu..." />
                                                 <CommandList>
                                                     <CommandEmpty>
                                                         No menu found.
                                                     </CommandEmpty>
                                                     <CommandGroup>
-                                                        {menus.map((menu) => (
-                                                            <CommandItem
-                                                                value={
-                                                                    menu.label
-                                                                }
-                                                                key={menu.value}
-                                                                onSelect={() => {
-                                                                    form.setValue(
-                                                                        "menuId",
-                                                                        menu.value
-                                                                    );
-                                                                }}
-                                                            >
-                                                                <MapPin
-                                                                    className={cn(
-                                                                        "mr-2 h-4 w-4",
-                                                                        menu.value ===
-                                                                            field.value
-                                                                            ? "opacity-100"
-                                                                            : "opacity-0"
-                                                                    )}
-                                                                />
-                                                                {menu.label}
-                                                            </CommandItem>
-                                                        ))}
+                                                        {menuData?.data.map(
+                                                            (
+                                                                menu: foodMenuProps
+                                                            ) => (
+                                                                <CommandItem
+                                                                    value={
+                                                                        menu._id
+                                                                    }
+                                                                    key={
+                                                                        menu._id
+                                                                    }
+                                                                    onSelect={() => {
+                                                                        form.setValue(
+                                                                            "menuId",
+                                                                            menu._id,
+                                                                            {
+                                                                                shouldValidate:
+                                                                                    true,
+                                                                            }
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <MapPin
+                                                                        className={cn(
+                                                                            "mr-2 h-4 w-4",
+                                                                            menu._id ===
+                                                                                field.value
+                                                                                ? "opacity-100"
+                                                                                : "opacity-0"
+                                                                        )}
+                                                                    />
+                                                                    {menu.name}
+                                                                </CommandItem>
+                                                            )
+                                                        )}
                                                     </CommandGroup>
                                                 </CommandList>
                                             </Command>
@@ -300,6 +339,12 @@ const FoodForm = () => {
                                                     type="number"
                                                     placeholder="Input price"
                                                     {...field}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target
+                                                                .valueAsNumber
+                                                        )
+                                                    }
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -389,6 +434,12 @@ const FoodForm = () => {
                                                     type="number"
                                                     placeholder="Element price"
                                                     {...field}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target
+                                                                .valueAsNumber
+                                                        )
+                                                    }
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -444,7 +495,12 @@ const FoodForm = () => {
                         )}
                     />
 
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit" disabled={isLoading}>
+                        Submit
+                        {isLoading && (
+                            <Loader className="w-5 h-5 animate-spin" />
+                        )}
+                    </Button>
                 </form>
             </Form>
         </div>

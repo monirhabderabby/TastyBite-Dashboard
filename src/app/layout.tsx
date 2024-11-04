@@ -2,9 +2,8 @@ import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { PT_Sans_Narrow, Pacifico } from "next/font/google";
-// import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
 import AppProvider from "@/provider/app-provider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 //eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -37,7 +36,7 @@ export default function RootLayout({
                 <html lang="en">
                     <body className={cn(narrow.className, "antialiased")}>
                         {children}
-                        <Toaster />
+                        <Toaster richColors />
                     </body>
                 </html>
             </AppProvider>
