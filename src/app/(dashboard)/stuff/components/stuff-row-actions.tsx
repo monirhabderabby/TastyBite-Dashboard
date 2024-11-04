@@ -12,12 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { toast } from "sonner";
-import { foodProps } from "./food-columns";
+import { stuffProps } from "../[stuffId]/components/stuff-form";
 
-const FoodRowActions = ({ food }: { food: foodProps }) => {
+const StuffRowActions = ({ stuff }: { stuff: stuffProps }) => {
     const onCopy = (id: string) => {
         navigator.clipboard.writeText(id);
-        toast.success(`Food id copied to clipboard.`);
+        toast.success(`Stuff id copied to clipboard.`);
     };
 
     return (
@@ -31,13 +31,13 @@ const FoodRowActions = ({ food }: { food: foodProps }) => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => onCopy(food._id)}>
+                    <DropdownMenuItem onClick={() => onCopy(stuff._id)}>
                         <Copy className="mr-2 h-4 w-4" />
                         Copy Id
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                         <Link
-                            href={`/foods/${food._id}`}
+                            href={`/stuff/${stuff._id}`}
                             className="flex items-center gap-x-2"
                         >
                             <Edit className="mr-2 h-4 w-4" />
@@ -54,4 +54,4 @@ const FoodRowActions = ({ food }: { food: foodProps }) => {
     );
 };
 
-export default FoodRowActions;
+export default StuffRowActions;

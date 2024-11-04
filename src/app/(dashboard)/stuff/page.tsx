@@ -1,19 +1,19 @@
 import SectionHeader from "@/components/common/section-header/section-header";
 import { Separator } from "@/components/ui/separator";
-import FoodTable from "./components/food-table";
+import StuffTable from "./components/stuff-table";
 
-const FoodPage = () => {
+const StuffPage = () => {
     return (
         <div>
             <SectionHeader
-                title="Food"
-                subTitle="Manage all food"
-                btnLink="/foods/create"
+                title="Stuff"
+                subTitle="Manage all stuff"
+                btnLink="/stuff/create"
             />
             <Separator className="mb-4" />
-            <FoodTable />
+            <StuffTable />
         </div>
     );
 };
 
-export default FoodPage;
+export default StuffPage;
