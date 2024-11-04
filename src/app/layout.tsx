@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { PT_Sans_Narrow, Pacifico } from "next/font/google";
-// import "./globals.css";
 import AppProvider from "@/provider/app-provider";
 import { Toaster } from "sonner";
 import "./globals.css";
