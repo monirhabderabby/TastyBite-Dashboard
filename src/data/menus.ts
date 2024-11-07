@@ -90,18 +90,18 @@ export const navMenus = [
         ],
     },
     {
-        title: "News",
-        url: "/news",
+        title: "Blog",
+        url: "/blog",
         icon: Newspaper,
         isActive: false,
         items: [
             {
-                title: "Create News",
-                url: "/news/create",
+                title: "Create Blog",
+                url: "/blog/create",
             },
             {
-                title: "All News",
-                url: "/news",
+                title: "All Blog",
+                url: "/blog",
             },
         ],
     },
