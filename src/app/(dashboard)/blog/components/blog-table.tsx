@@ -17,23 +17,11 @@ import { DataTable } from "@/components/ui/data-table";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { DataTableViewOptions } from "@/components/ui/data-table-view-options";
 import { Input } from "@/components/ui/input";
-import { useGetAllFoodsQuery } from "@/redux/features/food/foodApi";
-import { FoodColumns } from "./food-columns";
+import { useGetAllBlogsQuery } from "@/redux/features/blog/blogApi";
+import { BlogColumns, blogProps } from "./blog-columns";
 
-// Define the type for a food menu item
-interface FoodItem {
-    _id: string;
-    name: string;
-    description: string;
-    image: string;
-    price: number;
-    menu: string;
-}
-
-const FoodTable: React.FC = () => {
-    const { data, isLoading } = useGetAllFoodsQuery({});
-
-    console.log(data);
+const BlogTable: React.FC = () => {
+    const { data, isLoading } = useGetAllBlogsQuery({});
 
     if (isLoading) {
         return <TableSkeleton />;
@@ -41,16 +29,16 @@ const FoodTable: React.FC = () => {
 
     return (
         <div>
-            <TableContainer data={data?.data} columns={FoodColumns} />
+            <TableContainer data={data.data} columns={BlogColumns} />
         </div>
     );
 };
 
-export default FoodTable;
+export default BlogTable;
 
 interface TableContainerProps {
-    data: FoodItem[];
-    columns: ColumnDef<FoodItem>[];
+    data: blogProps[];
+    columns: ColumnDef<blogProps>[];
 }
 
 const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
@@ -67,14 +55,15 @@ const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
         <div>
             <div className="flex justify-between items-center py-4">
                 <Input
-                    placeholder="Filter by name"
+                    placeholder="Filter by title"
                     value={
-                        (table.getColumn("name")?.getFilterValue() as string) ??
-                        ""
+                        (table
+                            .getColumn("title")
+                            ?.getFilterValue() as string) ?? ""
                     }
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                         table
-                            .getColumn("name")
+                            .getColumn("title")
                             ?.setFilterValue(event.target.value)
                     }
                     className="max-w-[300px] focus-visible:ring-[#3a6f54]"
@@ -83,7 +72,7 @@ const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
                 <DataTableViewOptions table={table} />
             </div>
             <DataTable columns={columns} table={table} />
-            {data?.length > 10 && (
+            {data.length > 10 && (
                 <div className="mt-4">
                     <DataTablePagination table={table} />
                 </div>
