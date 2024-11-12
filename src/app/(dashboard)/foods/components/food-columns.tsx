@@ -39,6 +39,15 @@ export const FoodColumns: ColumnDef<foodProps>[] = [
     {
         accessorKey: "description",
         header: "Description",
+        cell: ({ row }) => {
+            const descriptionText: string = row.getValue("description");
+
+            return (
+                <p className="text-primary-black line-clamp-1 max-w-80">
+                    {descriptionText}
+                </p>
+            );
+        },
     },
     {
         accessorKey: "menuId",

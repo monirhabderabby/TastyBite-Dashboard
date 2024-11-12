@@ -10,6 +10,18 @@ const nextConfig = {
                 protocol: "https",
                 hostname: "code-theme.com",
             },
+            {
+                protocol: "https",
+                hostname: "assets.aceternity.com",
+            },
+            {
+                protocol: "https",
+                hostname: "secretrecipebd.com",
+            },
+            {
+                protocol: "https",
+                hostname: "foodking-react.vercel.app",
+            },
         ],
     },
 };

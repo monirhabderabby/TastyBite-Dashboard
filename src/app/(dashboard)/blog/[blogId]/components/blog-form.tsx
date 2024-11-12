@@ -1,5 +1,6 @@
 "use client";
 
+import { ExpandableCard } from "@/components/common/expandable-card/expandable-card";
 import ImageUpload from "@/components/common/file-upload/single-image-upload-with-edgestore";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,15 +27,18 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { BlogCategories } from "@/data/blog-categories";
+import { deleteCards } from "@/lib/delete-cards";
 import { cn } from "@/lib/utils";
 import {
     useCreateBlogMutation,
+    useDeleteBlogMutation,
     useUpdateBlogMutation,
 } from "@/redux/features/blog/blogApi";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { motion } from "framer-motion";
 import { ChevronsUpDown, Loader, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -57,10 +61,14 @@ const FormSchema = z.object({
 });
 
 const BlogForm = ({ blog }: { blog: blogProps }) => {
+    const [active, setActive] = useState<
+        (typeof deleteCards)[number] | boolean | null
+    >(null);
+    const router = useRouter();
+    const id = useId();
+
     const formTitle = blog ? "Update Blog" : "Create Blog";
     const description = blog ? "Update this blog" : "Add a new blog";
-
-    const router = useRouter();
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -83,6 +91,14 @@ const BlogForm = ({ blog }: { blog: blogProps }) => {
             isError: updateBlogError,
         },
     ] = useUpdateBlogMutation();
+    const [
+        deleteBlog,
+        {
+            isLoading: deleteBlogLoading,
+            isSuccess: deleteBlogSuccess,
+            isError: deleteBlogError,
+        },
+    ] = useDeleteBlogMutation();
 
     // Form submit function
     async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -98,6 +114,14 @@ const BlogForm = ({ blog }: { blog: blogProps }) => {
         }
     }
 
+    const onDelete = async () => {
+        try {
+            await deleteBlog(blog._id);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     useEffect(() => {
         if (isSuccess) {
             toast.success("Blog created successfully");
@@ -109,25 +133,75 @@ const BlogForm = ({ blog }: { blog: blogProps }) => {
             form.reset();
             router.push("/blog");
         }
+        if (deleteBlogSuccess) {
+            setActive(null);
+            toast.success("Blog deleted successfully");
+            router.push("/blog");
+        }
         if (isError) {
             toast.error("Failed to create Blog");
         }
         if (updateBlogError) {
             toast.error("Failed to update Blog");
         }
-    }, [form, isSuccess, updateBlogSuccess, router, isError, updateBlogError]);
+        if (deleteBlogError) {
+            setActive(null);
+            toast.error("Failed to delete Blog");
+        }
+    }, [
+        form,
+        isSuccess,
+        updateBlogSuccess,
+        deleteBlogSuccess,
+        router,
+        isError,
+        updateBlogError,
+        deleteBlogError,
+    ]);
 
     return (
         <div>
-            <div>
-                <h2 className="text-2xl md:text-[30px] font-bold font-inter mb-[2px] md:mb-1">
-                    {formTitle}
-                </h2>
-                <p className="text-sm md:text-base mb-1 pl-[2px]">
-                    {description}
-                </p>
-                <Separator />
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl md:text-[30px] font-bold font-inter mb-[2px] md:mb-1">
+                        {formTitle}
+                    </h2>
+                    <p className="text-sm md:text-base mb-1 pl-[2px]">
+                        {description}
+                    </p>
+                </div>
+                <div>
+                    {blog && (
+                        <>
+                            {deleteCards.map((card) => (
+                                <motion.div
+                                    layoutId={`card-${card.title}-${id}`}
+                                    key={`card-${card.title}-${id}`}
+                                    onClick={() => setActive(card)}
+                                    className="hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl cursor-pointer"
+                                >
+                                    <motion.button
+                                        layoutId={`button-${card.title}-${id}`}
+                                        className="px-4 py-2 text-sm rounded-md font-bold bg-red-500 hover:bg-red-700 duration-300 text-white mt-4 md:mt-0"
+                                    >
+                                        {card.ctaText}
+                                    </motion.button>
+                                </motion.div>
+                            ))}
+                            <ExpandableCard
+                                {...{
+                                    active,
+                                    setActive,
+                                    onDelete,
+                                    deleteLoading: deleteBlogLoading,
+                                    id,
+                                }}
+                            />
+                        </>
+                    )}
+                </div>
             </div>
+            <Separator />
 
             {/* Form elements */}
             <Form {...form}>

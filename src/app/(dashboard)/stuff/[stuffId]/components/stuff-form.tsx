@@ -1,5 +1,6 @@
 "use client";
 
+import { ExpandableCard } from "@/components/common/expandable-card/expandable-card";
 import ImageUpload from "@/components/common/file-upload/single-image-upload-with-edgestore";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,15 +13,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { deleteCards } from "@/lib/delete-cards";
 import {
     useCreateStuffMutation,
+    useDeleteStuffMutation,
     useUpdateStuffMutation,
 } from "@/redux/features/stuff/stuffApi";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { motion } from "framer-motion";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -68,7 +72,11 @@ const StuffForm = ({ stuff }: { stuff: stuffProps }) => {
     const formTitle = stuff ? "Update Stuff" : "Create Stuff";
     const description = stuff ? "Update this Stuff" : "Add a new Stuff";
 
+    const [active, setActive] = useState<
+        (typeof deleteCards)[number] | boolean | null
+    >(null);
     const router = useRouter();
+    const id = useId();
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -90,6 +98,7 @@ const StuffForm = ({ stuff }: { stuff: stuffProps }) => {
     // Create Stuff mutation
     const [createStuff, { isLoading, isSuccess, isError }] =
         useCreateStuffMutation();
+    // Update Stuff mutation
     const [
         updateStuff,
         {
@@ -98,6 +107,15 @@ const StuffForm = ({ stuff }: { stuff: stuffProps }) => {
             isError: updateStuffError,
         },
     ] = useUpdateStuffMutation();
+    // Delete Stuff mutation
+    const [
+        deleteStuff,
+        {
+            isLoading: deleteStuffLoading,
+            isSuccess: deleteStuffSuccess,
+            isError: deleteStuffError,
+        },
+    ] = useDeleteStuffMutation();
 
     // Form submit function
     async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -112,6 +130,14 @@ const StuffForm = ({ stuff }: { stuff: stuffProps }) => {
         }
     }
 
+    const onDelete = async () => {
+        try {
+            await deleteStuff(stuff._id);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     useEffect(() => {
         if (isSuccess) {
             toast.success("Stuff created successfully");
@@ -123,32 +149,74 @@ const StuffForm = ({ stuff }: { stuff: stuffProps }) => {
             form.reset();
             router.push("/stuff");
         }
+        if (deleteStuffSuccess) {
+            setActive(null);
+            toast.success("Stuff deleted successfully");
+            router.push("/stuff");
+        }
         if (isError) {
             toast.error("Failed to create Stuff");
         }
         if (updateStuffError) {
             toast.error("Failed to update Stuff");
         }
+        if (deleteStuffError) {
+            toast.error("Failed to delete Stuff");
+        }
     }, [
         form,
         isSuccess,
         updateStuffSuccess,
+        deleteStuffSuccess,
         router,
         isError,
         updateStuffError,
+        deleteStuffError,
     ]);
 
     return (
         <div>
-            <div>
-                <h2 className="text-2xl md:text-[30px] font-bold font-inter mb-[2px] md:mb-1">
-                    {formTitle}
-                </h2>
-                <p className="text-sm md:text-base mb-1 pl-[2px]">
-                    {description}
-                </p>
-                <Separator />
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl md:text-[30px] font-bold font-inter mb-[2px] md:mb-1">
+                        {formTitle}
+                    </h2>
+                    <p className="text-sm md:text-base mb-1 pl-[2px]">
+                        {description}
+                    </p>
+                </div>
+                <div>
+                    {stuff && (
+                        <>
+                            {deleteCards.map((card) => (
+                                <motion.div
+                                    layoutId={`card-${card.title}-${id}`}
+                                    key={`card-${card.title}-${id}`}
+                                    onClick={() => setActive(card)}
+                                    className="hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl cursor-pointer"
+                                >
+                                    <motion.button
+                                        layoutId={`button-${card.title}-${id}`}
+                                        className="px-4 py-2 text-sm rounded-md font-bold bg-red-500 hover:bg-red-700 duration-300 text-white mt-4 md:mt-0"
+                                    >
+                                        {card.ctaText}
+                                    </motion.button>
+                                </motion.div>
+                            ))}
+                            <ExpandableCard
+                                {...{
+                                    active,
+                                    setActive,
+                                    onDelete,
+                                    deleteLoading: deleteStuffLoading,
+                                    id,
+                                }}
+                            />
+                        </>
+                    )}
+                </div>
             </div>
+            <Separator />
 
             {/* Form elements */}
             <Form {...form}>
