@@ -2,6 +2,7 @@
 
 import { ExpandableCard } from "@/components/common/expandable-card/expandable-card";
 import ImageUpload from "@/components/common/file-upload/single-image-upload-with-edgestore";
+import RichTextEditor from "@/components/rich-text-editor/rich-text-editor";
 import { Button } from "@/components/ui/button";
 import {
     Command,
@@ -318,9 +319,11 @@ const BlogForm = ({ blog }: { blog: blogProps }) => {
                                     Blog Description
                                 </FormLabel>
                                 <FormControl>
-                                    <Input
-                                        placeholder="Blog Description"
-                                        {...field}
+                                    <RichTextEditor
+                                        content={field.value}
+                                        onChange={(value) =>
+                                            field.onChange(value)
+                                        }
                                     />
                                 </FormControl>
                                 <FormMessage />
