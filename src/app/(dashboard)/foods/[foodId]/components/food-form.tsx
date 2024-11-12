@@ -1,6 +1,7 @@
 "use client";
 
 import { foodMenuProps } from "@/app/(dashboard)/menu/components/menu-columns";
+import { ExpandableCard } from "@/components/common/expandable-card/expandable-card";
 import ImageUpload from "@/components/common/file-upload/single-image-upload-with-edgestore";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,16 +27,19 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { deleteCards } from "@/lib/delete-cards";
 import { cn } from "@/lib/utils";
 import {
     useCreateFoodMutation,
+    useDeleteFoodMutation,
     useUpdateFoodMutation,
 } from "@/redux/features/food/foodApi";
 import { useGetAllMenusQuery } from "@/redux/features/menu/menuApi";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { motion } from "framer-motion";
 import { ChevronsUpDown, Loader, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useId, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -47,8 +51,8 @@ const sizesItemSchema = z.object({
 });
 
 const extraItemSchema = z.object({
-    name: z.string().min(1, "Extra item name is required"),
-    extra_price: z.coerce.number().min(1, "Extra item price is required"),
+    name: z.string(),
+    extra_price: z.coerce.number(),
 });
 
 const FormSchema = z.object({
@@ -67,9 +71,7 @@ const FormSchema = z.object({
     menuId: z.string().min(1, {
         message: "Menu is required",
     }),
-    sizes: z
-        .array(sizesItemSchema)
-        .min(1, "At least one size item is required"),
+    sizes: z.array(sizesItemSchema).optional(),
     extras: z.array(extraItemSchema).optional(),
 });
 
@@ -99,7 +101,11 @@ const FoodForm = ({ food }: { food: singleFoodProps }) => {
     const formTitle = food ? "Update Food" : "Create Food";
     const description = food ? "Update the food" : "Add a new food";
 
+    const [active, setActive] = useState<
+        (typeof deleteCards)[number] | boolean | null
+    >(null);
     const router = useRouter();
+    const id = useId();
 
     // Menu data retrieve
     const { data: menuData } = useGetAllMenusQuery({});
@@ -117,6 +123,15 @@ const FoodForm = ({ food }: { food: singleFoodProps }) => {
             isError: foodUpdateError,
         },
     ] = useUpdateFoodMutation();
+    // Delete Food mutation
+    const [
+        deleteFood,
+        {
+            isLoading: deleteFoodLoading,
+            isSuccess: deleteFoodSuccess,
+            isError: deleteFoodError,
+        },
+    ] = useDeleteFoodMutation();
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -162,6 +177,14 @@ const FoodForm = ({ food }: { food: singleFoodProps }) => {
         }
     }
 
+    const onDelete = async () => {
+        try {
+            await deleteFood(food._id);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     useEffect(() => {
         if (isSuccess) {
             toast.success(createdFoodInfo?.message);
@@ -173,16 +196,26 @@ const FoodForm = ({ food }: { food: singleFoodProps }) => {
             form.reset();
             router.push("/foods");
         }
+        if (deleteFoodSuccess) {
+            setActive(null);
+            toast.success("Food deleted successfully");
+            router.push("/foods");
+        }
         if (isError) {
             toast.error("Failed to create food");
         }
         if (foodUpdateError) {
             toast.error("Failed to update food");
         }
+        if (deleteFoodError) {
+            toast.error("Failed to delete Food");
+        }
     }, [
         createdFoodInfo,
         foodUpdateError,
         foodUpdateSuccess,
+        deleteFoodSuccess,
+        deleteFoodError,
         form,
         isError,
         isSuccess,
@@ -191,15 +224,47 @@ const FoodForm = ({ food }: { food: singleFoodProps }) => {
 
     return (
         <div>
-            <div>
-                <h2 className="text-2xl md:text-[30px] font-bold font-inter mb-[2px] md:mb-1">
-                    {formTitle}
-                </h2>
-                <p className="text-sm md:text-base mb-1 pl-[2px]">
-                    {description}
-                </p>
-                <Separator />
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl md:text-[30px] font-bold font-inter mb-[2px] md:mb-1">
+                        {formTitle}
+                    </h2>
+                    <p className="text-sm md:text-base mb-1 pl-[2px]">
+                        {description}
+                    </p>
+                </div>
+                <div>
+                    {food && (
+                        <>
+                            {deleteCards.map((card) => (
+                                <motion.div
+                                    layoutId={`card-${card.title}-${id}`}
+                                    key={`card-${card.title}-${id}`}
+                                    onClick={() => setActive(card)}
+                                    className="hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl cursor-pointer"
+                                >
+                                    <motion.button
+                                        layoutId={`button-${card.title}-${id}`}
+                                        className="px-4 py-2 text-sm rounded-md font-bold bg-red-500 hover:bg-red-700 duration-300 text-white mt-4 md:mt-0"
+                                    >
+                                        {card.ctaText}
+                                    </motion.button>
+                                </motion.div>
+                            ))}
+                            <ExpandableCard
+                                {...{
+                                    active,
+                                    setActive,
+                                    onDelete,
+                                    deleteLoading: deleteFoodLoading,
+                                    id,
+                                }}
+                            />
+                        </>
+                    )}
+                </div>
             </div>
+            <Separator />
 
             {/* Form elements */}
             <Form {...form}>

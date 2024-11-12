@@ -26,6 +26,11 @@ export const StuffColumns: ColumnDef<stuffProps>[] = [
     {
         accessorKey: "name",
         header: "Name",
+        cell: ({ row }) => {
+            const name: string = row.getValue("name");
+
+            return <p className="whitespace-nowrap">{name}</p>;
+        },
     },
     {
         accessorKey: "email",
@@ -38,6 +43,11 @@ export const StuffColumns: ColumnDef<stuffProps>[] = [
     {
         accessorKey: "bio",
         header: "Bio",
+        cell: ({ row }) => {
+            const bio: string = row.getValue("bio");
+
+            return <p className="line-clamp-2">{bio}</p>;
+        },
     },
     {
         accessorKey: "phoneNo",
@@ -46,6 +56,11 @@ export const StuffColumns: ColumnDef<stuffProps>[] = [
     {
         accessorKey: "address",
         header: "Address",
+        cell: ({ row }) => {
+            const address: string = row.getValue("address");
+
+            return <p className="w-20">{address}</p>;
+        },
     },
     {
         accessorKey: "facebookLink",
