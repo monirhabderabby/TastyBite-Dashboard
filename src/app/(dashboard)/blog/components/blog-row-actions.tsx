@@ -13,13 +13,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { deleteCards } from "@/lib/delete-cards";
 import { useDeleteBlogMutation } from "@/redux/features/blog/blogApi";
+import { TBlog } from "@/types";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
-import { blogProps } from "./blog-columns";
 
-const BlogRowActions = ({ blog }: { blog: blogProps }) => {
+const BlogRowActions = ({ blog }: { blog: TBlog }) => {
     const [active, setActive] = useState<
         (typeof deleteCards)[number] | boolean | null
     >(null);

@@ -1,17 +1,10 @@
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { TFood, TMenu } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import FoodRowActions from "./food-row-actions";
 
-export type foodProps = {
-    _id: string;
-    name: string;
-    description: string;
-    image: string;
-    price: number;
-    menu: string;
-};
-
-export const FoodColumns: ColumnDef<foodProps>[] = [
+export const FoodColumns: ColumnDef<TFood>[] = [
     {
         accessorKey: `images`,
         header: "Image",
@@ -53,14 +46,17 @@ export const FoodColumns: ColumnDef<foodProps>[] = [
         accessorKey: "menuId",
         header: "Menu",
         cell: ({ row }) => {
-            const menu: { name: string } = row.getValue("menuId");
+            const menu: TMenu = row.getValue("menuId");
 
             return <p className="text-primary-black">{menu?.name}</p>;
         },
     },
     {
         accessorKey: "price",
-        header: "Price",
+        // header: "Price",
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Price" />
+        ),
         cell: ({ row }) => {
             const price = parseFloat(row.getValue("price"));
             const formattedPrice = new Intl.NumberFormat("en-US", {

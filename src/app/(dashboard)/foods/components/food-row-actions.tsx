@@ -13,13 +13,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { deleteCards } from "@/lib/delete-cards";
 import { useDeleteFoodMutation } from "@/redux/features/food/foodApi";
+import { TFood } from "@/types";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
-import { foodProps } from "./food-columns";
 
-const FoodRowActions = ({ food }: { food: foodProps }) => {
+const FoodRowActions = ({ food }: { food: TFood }) => {
     const [active, setActive] = useState<
         (typeof deleteCards)[number] | boolean | null
     >(null);

@@ -9,16 +9,17 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import React from "react";
+import React, { useMemo } from "react";
 
 // Components
 import TableSkeleton from "@/components/common/skeleton-loader/table-skeleton";
 import { DataTable } from "@/components/ui/data-table";
+import { DataTableFacetedFilter } from "@/components/ui/data-table-faceted-filter";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { DataTableViewOptions } from "@/components/ui/data-table-view-options";
 import { Input } from "@/components/ui/input";
 import { useGetAllStuffsQuery } from "@/redux/features/stuff/stuffApi";
-import { stuffProps } from "../[stuffId]/components/stuff-form";
+import { TStaff } from "@/types";
 import { StuffColumns } from "./stuff-columns";
 
 const StuffTable: React.FC = () => {
@@ -40,8 +41,8 @@ const StuffTable: React.FC = () => {
 export default StuffTable;
 
 interface TableContainerProps {
-    data: stuffProps[];
-    columns: ColumnDef<stuffProps>[];
+    data: TStaff[];
+    columns: ColumnDef<TStaff>[];
 }
 
 const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
@@ -54,22 +55,47 @@ const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
         getPaginationRowModel: getPaginationRowModel(),
     });
 
+    const designationOptions = useMemo(() => {
+        const designationMap = new Map();
+
+        data?.forEach((stuff) => {
+            designationMap.set(stuff.designation, {
+                value: stuff.designation,
+                label: stuff.designation,
+            });
+        });
+
+        const uniqueDesignation = new Set(designationMap.values());
+
+        return Array.from(uniqueDesignation);
+    }, [data]);
+
     return (
         <div>
             <div className="flex justify-between items-center py-4">
-                <Input
-                    placeholder="Filter by name"
-                    value={
-                        (table.getColumn("name")?.getFilterValue() as string) ??
-                        ""
-                    }
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                        table
-                            .getColumn("name")
-                            ?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-[300px] focus-visible:ring-[#3a6f54]"
-                />
+                <div className="flex items-center gap-x-2">
+                    <Input
+                        placeholder="Filter by name"
+                        value={
+                            (table
+                                .getColumn("name")
+                                ?.getFilterValue() as string) ?? ""
+                        }
+                        onChange={(
+                            event: React.ChangeEvent<HTMLInputElement>
+                        ) =>
+                            table
+                                .getColumn("name")
+                                ?.setFilterValue(event.target.value)
+                        }
+                        className="max-w-[300px] focus-visible:ring-[#3a6f54]"
+                    />
+                    <DataTableFacetedFilter
+                        title="Designation"
+                        column={table.getColumn("designation")}
+                        options={designationOptions}
+                    />
+                </div>
 
                 <DataTableViewOptions table={table} />
             </div>

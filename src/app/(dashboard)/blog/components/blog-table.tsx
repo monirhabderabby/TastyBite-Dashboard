@@ -9,16 +9,18 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import React from "react";
+import React, { useMemo } from "react";
 
 // Components
 import TableSkeleton from "@/components/common/skeleton-loader/table-skeleton";
 import { DataTable } from "@/components/ui/data-table";
+import { DataTableFacetedFilter } from "@/components/ui/data-table-faceted-filter";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { DataTableViewOptions } from "@/components/ui/data-table-view-options";
 import { Input } from "@/components/ui/input";
 import { useGetAllBlogsQuery } from "@/redux/features/blog/blogApi";
-import { BlogColumns, blogProps } from "./blog-columns";
+import { TBlog } from "@/types";
+import { BlogColumns } from "./blog-columns";
 
 const BlogTable: React.FC = () => {
     const { data, isLoading } = useGetAllBlogsQuery({});
@@ -37,8 +39,8 @@ const BlogTable: React.FC = () => {
 export default BlogTable;
 
 interface TableContainerProps {
-    data: blogProps[];
-    columns: ColumnDef<blogProps>[];
+    data: TBlog[];
+    columns: ColumnDef<TBlog>[];
 }
 
 const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
@@ -50,6 +52,21 @@ const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
     });
+
+    const categoryOptions = useMemo(() => {
+        const categoryMap = new Map();
+
+        data?.forEach((blog) => {
+            categoryMap.set(blog.blogCategory, {
+                value: blog.blogCategory,
+                label: blog.blogCategory,
+            });
+        });
+
+        const uniqueCategories = new Set(categoryMap.values());
+
+        return Array.from(uniqueCategories);
+    }, [data]);
 
     return (
         <div>
@@ -69,7 +86,14 @@ const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
                     className="max-w-[300px] focus-visible:ring-[#3a6f54]"
                 />
 
-                <DataTableViewOptions table={table} />
+                <div className="flex items-center gap-x-2">
+                    <DataTableFacetedFilter
+                        title="Category"
+                        column={table.getColumn("blogCategory")}
+                        options={categoryOptions}
+                    />
+                    <DataTableViewOptions table={table} />
+                </div>
             </div>
             <DataTable columns={columns} table={table} />
             {data.length > 10 && (
