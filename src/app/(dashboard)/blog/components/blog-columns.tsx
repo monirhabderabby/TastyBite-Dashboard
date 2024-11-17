@@ -1,16 +1,9 @@
+import { TBlog } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import BlogRowActions from "./blog-row-actions";
 
-export type blogProps = {
-    _id: string;
-    title: string;
-    blogCategory: string;
-    description: string;
-    image: string;
-};
-
-export const BlogColumns: ColumnDef<blogProps>[] = [
+export const BlogColumns: ColumnDef<TBlog>[] = [
     {
         accessorKey: "image",
         header: "Image",

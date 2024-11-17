@@ -1,9 +1,9 @@
+import { TStaff } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
-import { stuffProps } from "../[stuffId]/components/stuff-form";
 import StuffRowActions from "./stuff-row-actions";
 
-export const StuffColumns: ColumnDef<stuffProps>[] = [
+export const StuffColumns: ColumnDef<TStaff>[] = [
     {
         accessorKey: "image",
         header: "Image",

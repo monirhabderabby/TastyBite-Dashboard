@@ -35,6 +35,7 @@ import {
     useDeleteBlogMutation,
     useUpdateBlogMutation,
 } from "@/redux/features/blog/blogApi";
+import { TBlog } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { ChevronsUpDown, Loader, MapPin } from "lucide-react";
@@ -43,7 +44,6 @@ import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { blogProps } from "../../components/blog-columns";
 
 const FormSchema = z.object({
     clerkId: z.string().optional(),
@@ -61,7 +61,7 @@ const FormSchema = z.object({
     }),
 });
 
-const BlogForm = ({ blog }: { blog: blogProps }) => {
+const BlogForm = ({ blog }: { blog: TBlog }) => {
     const [active, setActive] = useState<
         (typeof deleteCards)[number] | boolean | null
     >(null);
