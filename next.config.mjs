@@ -22,6 +22,14 @@ const nextConfig = {
                 protocol: "https",
                 hostname: "foodking-react.vercel.app",
             },
+            {
+                protocol: "https",
+                hostname: "img.clerk.com",
+            },
+            {
+                protocol: "https",
+                hostname: "png.pngtree.com",
+            },
         ],
     },
 };

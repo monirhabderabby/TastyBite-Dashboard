@@ -1,10 +1,10 @@
 import {
     Bike,
-    CalendarCheck2,
     ChefHat,
     HandPlatter,
     Newspaper,
     Soup,
+    UserRoundCog,
     UtensilsCrossed,
 } from "lucide-react";
 
@@ -105,19 +105,31 @@ export const navMenus = [
             },
         ],
     },
+    // {
+    //     title: "Reservation",
+    //     url: "/reservation",
+    //     icon: CalendarCheck2,
+    //     isActive: false,
+    //     items: [
+    //         {
+    //             title: "Create Reservation",
+    //             url: "/reservation/create",
+    //         },
+    //         {
+    //             title: "All Reservation",
+    //             url: "/reservation",
+    //         },
+    //     ],
+    // },
     {
-        title: "Reservation",
-        url: "/reservation",
-        icon: CalendarCheck2,
+        title: "Users",
+        url: "/users",
+        icon: UserRoundCog,
         isActive: false,
         items: [
             {
-                title: "Create Reservation",
-                url: "/reservation/create",
-            },
-            {
-                title: "All Reservation",
-                url: "/reservation",
+                title: "All Users",
+                url: "/users",
             },
         ],
     },
