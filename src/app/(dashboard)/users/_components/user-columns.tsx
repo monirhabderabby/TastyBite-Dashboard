@@ -48,7 +48,8 @@ export const UserColumns: ColumnDef<TUser>[] = [
                         className={cn(
                             "text-sm w-fit px-3 py-1 rounded-[50px] uppercase",
                             role === "admin" && "bg-green-200",
-                            role === "user" && "bg-gray-200"
+                            role === "user" && "bg-gray-200",
+                            role === "delivery man" && "bg-amber-200"
                         )}
                     >
                         {role}
