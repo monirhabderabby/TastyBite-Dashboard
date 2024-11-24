@@ -9,8 +9,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useUpdateUserMutation } from "@/redux/features/user/userApi";
+import { useUpdateUserRoleMutation } from "@/redux/features/user/userApi";
 import { TUser } from "@/types";
+import { useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -29,11 +30,23 @@ const UpdateRole = ({ user }: { user: TUser }) => {
         },
     });
 
-    const [updateUser, { isLoading, isSuccess }] = useUpdateUserMutation();
+    const { user: clerkUser } = useUser();
+
+    console.log("CLERK_USER", clerkUser?.publicMetadata);
+
+    const [updateUserRole, { isLoading, isSuccess }] =
+        useUpdateUserRoleMutation();
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data);
-        updateUser({ id: user._id, body: { role: data.role } });
+        updateUserRole({
+            id: user._id,
+            body: {
+                _id: user._id,
+                clerkId: user.clerkId,
+                role: data.role,
+            },
+        });
     }
 
     useEffect(() => {

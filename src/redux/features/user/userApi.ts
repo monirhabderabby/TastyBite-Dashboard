@@ -35,6 +35,17 @@ const userApi = baseApi.injectEndpoints({
                 { type: "SingleUser", id },
             ],
         }),
+        updateUserRole: builder.mutation({
+            query: ({ body, id }) => ({
+                url: `/users/update-role/${id}`,
+                method: "PATCH",
+                body,
+            }),
+            invalidatesTags: (result, error, { id }) => [
+                "User",
+                { type: "SingleUser", id },
+            ],
+        }),
         deleteUser: builder.mutation({
             query: (id: string) => ({
                 url: `/users/${id}`,
@@ -53,6 +64,7 @@ export const {
     useGetSingleUserQuery,
     useCreateUserMutation,
     useUpdateUserMutation,
+    useUpdateUserRoleMutation,
     useDeleteUserMutation,
 } = userApi;
 
