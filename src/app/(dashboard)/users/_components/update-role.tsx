@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import {
     Select,
@@ -32,21 +31,22 @@ const UpdateRole = ({ user }: { user: TUser }) => {
 
     const { user: clerkUser } = useUser();
 
-    console.log("CLERK_USER", clerkUser?.publicMetadata);
-
     const [updateUserRole, { isLoading, isSuccess }] =
         useUpdateUserRoleMutation();
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data);
-        updateUserRole({
-            id: user._id,
-            body: {
-                _id: user._id,
-                clerkId: user.clerkId,
-                role: data.role,
-            },
-        });
+        if (clerkUser?.publicMetadata?.role === "admin") {
+            updateUserRole({
+                id: user._id,
+                body: {
+                    _id: user._id,
+                    clerkId: user.clerkId,
+                    role: data.role,
+                },
+            });
+        } else {
+            toast.error("You do not have permission to update this user.");
+        }
     }
 
     useEffect(() => {
@@ -59,17 +59,21 @@ const UpdateRole = ({ user }: { user: TUser }) => {
         <div className="w-fit">
             <Form {...form}>
                 <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex items-center gap-x-2"
+                    onChange={form.handleSubmit(onSubmit)}
+                    className="flex items-center"
                 >
                     <FormField
                         control={form.control}
                         name="role"
                         render={({ field }) => (
-                            <FormItem className="w-40">
+                            <FormItem className="w-36">
                                 <Select
-                                    onValueChange={field.onChange}
+                                    onValueChange={(value) => {
+                                        field.onChange(value);
+                                        form.handleSubmit(onSubmit)();
+                                    }}
                                     defaultValue={field.value}
+                                    disabled={isLoading}
                                 >
                                     <FormControl>
                                         <SelectTrigger>
@@ -91,9 +95,6 @@ const UpdateRole = ({ user }: { user: TUser }) => {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit" disabled={isLoading}>
-                        Submit
-                    </Button>
                 </form>
             </Form>
         </div>
