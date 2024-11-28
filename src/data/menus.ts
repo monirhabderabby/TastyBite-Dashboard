@@ -1,5 +1,4 @@
 import {
-    Bike,
     ChefHat,
     HandPlatter,
     Newspaper,
@@ -47,29 +46,13 @@ export const navMenus = [
         icon: HandPlatter,
         isActive: false,
         items: [
-            {
-                title: "Create Orders",
-                url: "/orders/create",
-            },
+            // {
+            //     title: "Create Orders",
+            //     url: "/orders/create",
+            // },
             {
                 title: "All Orders",
                 url: "/orders",
-            },
-        ],
-    },
-    {
-        title: "Delivery Man",
-        url: "/deliveryMan",
-        icon: Bike,
-        isActive: false,
-        items: [
-            {
-                title: "Create Delivery Man",
-                url: "/deliveryMan/create",
-            },
-            {
-                title: "All Delivery Man",
-                url: "/deliveryMan",
             },
         ],
     },

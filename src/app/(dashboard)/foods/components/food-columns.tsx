@@ -53,7 +53,6 @@ export const FoodColumns: ColumnDef<TFood>[] = [
     },
     {
         accessorKey: "price",
-        // header: "Price",
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Price" />
         ),

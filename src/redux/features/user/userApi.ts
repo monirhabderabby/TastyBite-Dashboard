@@ -56,6 +56,13 @@ const userApi = baseApi.injectEndpoints({
                 { type: "SingleUser", id },
             ],
         }),
+        getAllDeliveryMan: builder.query({
+            query: () => ({
+                url: "/users?role=delivery man",
+                method: "GET",
+            }),
+            providesTags: ["User"],
+        }),
     }),
 });
 
@@ -66,6 +73,7 @@ export const {
     useUpdateUserMutation,
     useUpdateUserRoleMutation,
     useDeleteUserMutation,
+    useGetAllDeliveryManQuery,
 } = userApi;
 
 export default userApi;
