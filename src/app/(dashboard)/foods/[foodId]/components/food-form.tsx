@@ -35,6 +35,7 @@ import {
     useUpdateFoodMutation,
 } from "@/redux/features/food/foodApi";
 import { useGetAllMenusQuery } from "@/redux/features/menu/menuApi";
+import { TMenu } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { ChevronsUpDown, Loader, MapPin } from "lucide-react";
@@ -81,7 +82,7 @@ interface singleFoodProps {
     description: string;
     price: number;
     images: string[];
-    menuId: string;
+    menuId: TMenu;
     sizes: [
         {
             size: string;
@@ -140,7 +141,7 @@ const FoodForm = ({ food }: { food: singleFoodProps }) => {
             description: food ? food.description : "",
             images: food ? food.images : [],
             price: food ? food.price : 0,
-            menuId: food ? food.menuId : "",
+            menuId: food ? food.menuId._id : "",
             sizes: food
                 ? food.sizes
                 : [{ size: "", price: 0, description: "" }],
@@ -164,7 +165,6 @@ const FoodForm = ({ food }: { food: singleFoodProps }) => {
 
     // Submit form
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data);
         try {
             if (food) {
                 await updateFood({ body: data, id: food._id });

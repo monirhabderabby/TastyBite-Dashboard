@@ -29,8 +29,6 @@ const StuffTable: React.FC = () => {
         return <TableSkeleton />;
     }
 
-    console.log(data);
-
     return (
         <div>
             <TableContainer data={data?.data} columns={StuffColumns} />
