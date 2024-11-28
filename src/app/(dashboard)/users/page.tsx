@@ -1,6 +1,8 @@
 import SectionHeader from "@/components/common/section-header/section-header";
 import { Separator } from "@/components/ui/separator";
-import UsersTable from "./_components/users-table";
+import dynamic from "next/dynamic";
+
+const UsersTable = dynamic(() => import("./_components/users-table"));
 
 const UsersPage = () => {
     return (

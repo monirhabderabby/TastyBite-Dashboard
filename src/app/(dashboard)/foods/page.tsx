@@ -1,6 +1,8 @@
 import SectionHeader from "@/components/common/section-header/section-header";
 import { Separator } from "@/components/ui/separator";
-import FoodTable from "./components/food-table";
+import dynamic from "next/dynamic";
+
+const FoodTable = dynamic(() => import("./components/food-table"));
 
 const FoodPage = () => {
     return (
