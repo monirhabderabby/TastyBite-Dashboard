@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 
 export default function TableSkeleton({
-    rows = 5,
+    rows = 10,
     columns = 5,
 }: {
     rows?: number;

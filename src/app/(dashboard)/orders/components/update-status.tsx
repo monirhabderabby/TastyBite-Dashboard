@@ -8,8 +8,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useUpdateUserRoleMutation } from "@/redux/features/user/userApi";
-import { TUser } from "@/types";
+import { useUpdateOrderStatusMutation } from "@/redux/features/order/orderApi";
+import { TOrder } from "@/types";
 import { useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
@@ -18,40 +18,38 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const FormSchema = z.object({
-    role: z.string(),
+    orderStatus: z.string(),
 });
 
-const UpdateRole = ({ user }: { user: TUser }) => {
+const UpdateStatus = ({ order }: { order: TOrder }) => {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            role: user.role || "",
+            orderStatus: order.orderStatus || "",
         },
     });
 
     const { user: clerkUser } = useUser();
 
-    const [updateUserRole, { isLoading, isSuccess }] =
-        useUpdateUserRoleMutation();
+    const [updateOrderStatus, { isLoading, isSuccess }] =
+        useUpdateOrderStatusMutation();
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         if (clerkUser?.publicMetadata?.role === "admin") {
-            updateUserRole({
-                id: user._id,
+            updateOrderStatus({
+                id: order._id,
                 body: {
-                    _id: user._id,
-                    clerkId: user.clerkId,
-                    role: data.role,
+                    status: data.orderStatus,
                 },
             });
         } else {
-            toast.error("You do not have permission to update the user.");
+            toast.error("You do not have permission to update the order.");
         }
     }
 
     useEffect(() => {
         if (isSuccess) {
-            toast.success("User role updated successfully");
+            toast.success("Order status updated successfully");
         }
     }, [isSuccess]);
 
@@ -59,12 +57,12 @@ const UpdateRole = ({ user }: { user: TUser }) => {
         <div className="w-fit">
             <Form {...form}>
                 <form
-                    onChange={form.handleSubmit(onSubmit)}
+                    onSubmit={form.handleSubmit(onSubmit)}
                     className="flex items-center"
                 >
                     <FormField
                         control={form.control}
-                        name="role"
+                        name="orderStatus"
                         render={({ field }) => (
                             <FormItem className="w-36">
                                 <Select
@@ -73,7 +71,15 @@ const UpdateRole = ({ user }: { user: TUser }) => {
                                         form.handleSubmit(onSubmit)();
                                     }}
                                     defaultValue={field.value}
-                                    disabled={isLoading}
+                                    disabled={
+                                        isLoading ||
+                                        ![
+                                            "Order Placed",
+                                            "Order Confirmed",
+                                            "Cooking",
+                                            "Order Cancelled",
+                                        ].includes(order.orderStatus)
+                                    }
                                 >
                                     <FormControl>
                                         <SelectTrigger>
@@ -81,14 +87,14 @@ const UpdateRole = ({ user }: { user: TUser }) => {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="admin">
-                                            Admin
+                                        <SelectItem value="Order Placed">
+                                            Order Placed
                                         </SelectItem>
-                                        <SelectItem value="user">
-                                            User
+                                        <SelectItem value="Order Confirmed">
+                                            Order Confirmed
                                         </SelectItem>
-                                        <SelectItem value="delivery man">
-                                            Delivery Man
+                                        <SelectItem value="Cooking">
+                                            Cooking
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -101,4 +107,4 @@ const UpdateRole = ({ user }: { user: TUser }) => {
     );
 };
 
-export default UpdateRole;
+export default UpdateStatus;

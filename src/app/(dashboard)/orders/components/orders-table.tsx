@@ -9,24 +9,29 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import React from "react";
+import React, { useMemo } from "react";
 
 // Components
+import TableSkeleton from "@/components/common/skeleton-loader/table-skeleton";
 import { DataTable } from "@/components/ui/data-table";
+import { DataTableFacetedFilter } from "@/components/ui/data-table-faceted-filter";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { DataTableViewOptions } from "@/components/ui/data-table-view-options";
 import { Input } from "@/components/ui/input";
-import { dummyOrders, TDummyOrder } from "@/data/dummy-orders";
+import { useGetAllOrdersQuery } from "@/redux/features/order/orderApi";
+import { TOrder } from "@/types";
 import { OrderColumns } from "./order-columns";
 
 const OrdersTable: React.FC = () => {
-    // if (isLoading) {
-    //     return <TableSkeleton />;
-    // }
+    const { data: orders, isLoading } = useGetAllOrdersQuery({});
+
+    if (isLoading) {
+        return <TableSkeleton rows={15} columns={8} />;
+    }
 
     return (
         <div>
-            <TableContainer data={dummyOrders} columns={OrderColumns} />
+            <TableContainer data={orders?.data} columns={OrderColumns} />
         </div>
     );
 };
@@ -34,8 +39,8 @@ const OrdersTable: React.FC = () => {
 export default OrdersTable;
 
 interface TableContainerProps {
-    data: TDummyOrder[];
-    columns: ColumnDef<TDummyOrder>[];
+    data: TOrder[];
+    columns: ColumnDef<TOrder>[];
 }
 
 const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
@@ -48,11 +53,26 @@ const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
         getPaginationRowModel: getPaginationRowModel(),
     });
 
+    const orderStatusOptions = useMemo(() => {
+        const orderStatusMap = new Map();
+
+        data?.forEach((order) => {
+            orderStatusMap.set(order.orderStatus, {
+                value: order.orderStatus,
+                label: order.orderStatus,
+            });
+        });
+
+        const uniqueStatus = new Set(orderStatusMap.values());
+
+        return Array.from(uniqueStatus);
+    }, [data]);
+
     return (
         <div>
             <div className="flex justify-between items-center py-4">
                 <Input
-                    placeholder="Filter by invoice"
+                    placeholder="Filter by transaction id"
                     value={
                         (table
                             .getColumn("transactionId")
@@ -66,10 +86,17 @@ const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
                     className="max-w-[300px] focus-visible:ring-[#3a6f54]"
                 />
 
-                <DataTableViewOptions table={table} />
+                <div className="flex items-center gap-x-2">
+                    <DataTableFacetedFilter
+                        title="Order Status"
+                        column={table.getColumn("orderStatus")}
+                        options={orderStatusOptions}
+                    />
+                    <DataTableViewOptions table={table} />
+                </div>
             </div>
             <DataTable columns={columns} table={table} />
-            {data.length > 10 && (
+            {data?.length > 10 && (
                 <div className="mt-4">
                     <DataTablePagination table={table} />
                 </div>

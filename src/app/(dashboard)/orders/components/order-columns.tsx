@@ -1,9 +1,14 @@
-import { TDummyOrder } from "@/data/dummy-orders";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { cn } from "@/lib/utils";
+import { TOrder } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
+import userPlaceholderImg from "../../../../../public/user-placeholder.png";
+import CancelOrder from "./cancel-order";
+import UpdateDeliveryMan from "./update-delivery-man";
+import UpdateStatus from "./update-status";
 
-export const OrderColumns: ColumnDef<TDummyOrder>[] = [
+export const OrderColumns: ColumnDef<TOrder>[] = [
     {
         accessorKey: "transactionId",
         header: "Transaction ID",
@@ -37,8 +42,8 @@ export const OrderColumns: ColumnDef<TDummyOrder>[] = [
                 <div className="flex items-center gap-x-3">
                     <div className="relative h-[30px] w-[30px] rounded-full">
                         <Image
-                            src={user.image}
-                            alt={user.name}
+                            src={user.image || userPlaceholderImg}
+                            alt={user.name || ""}
                             width={30}
                             height={30}
                             className="rounded-full bg-gray-100"
@@ -61,8 +66,8 @@ export const OrderColumns: ColumnDef<TDummyOrder>[] = [
                 <div className="flex items-center gap-x-3">
                     <div className="relative h-[30px] w-[30px] rounded-full">
                         <Image
-                            src={deliveryMan.image}
-                            alt={deliveryMan.name}
+                            src={deliveryMan.image || userPlaceholderImg}
+                            alt={deliveryMan.name || ""}
                             width={30}
                             height={30}
                             className="rounded-full bg-gray-100"
@@ -107,7 +112,9 @@ export const OrderColumns: ColumnDef<TDummyOrder>[] = [
     },
     {
         accessorKey: "totalPrice",
-        header: "Total Price",
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Total Price" />
+        ),
         cell: ({ row }) => {
             const { totalPrice } = row.original || {};
             return (
@@ -119,7 +126,9 @@ export const OrderColumns: ColumnDef<TDummyOrder>[] = [
     },
     {
         accessorKey: "createdAt",
-        header: "Order Date",
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Order Date" />
+        ),
         cell: ({ row }) => {
             const { createdAt } = row.original || {};
             const date = new Date(createdAt);
@@ -143,27 +152,37 @@ export const OrderColumns: ColumnDef<TDummyOrder>[] = [
         },
     },
     {
+        accessorKey: "",
+        header: "Update Status",
+        cell: ({ row }) => {
+            const order = row.original || {};
+
+            return (
+                <div className="w-fit">
+                    <UpdateStatus order={order} />
+                </div>
+            );
+        },
+    },
+    {
+        accessorKey: "",
+        header: "Assign Delivery Man",
+        cell: ({ row }) => {
+            const order = row.original || {};
+
+            return (
+                <div className="w-fit">
+                    <UpdateDeliveryMan order={order} />
+                </div>
+            );
+        },
+    },
+    {
         id: "actions",
         header: "Actions",
         cell: ({ row }) => {
             const order = row.original;
-            return (
-                <div className="flex items-center gap-2">
-                    {/* Add action buttons here */}
-                    <button
-                        className="text-blue-600 hover:underline"
-                        onClick={() => console.log("View order", order._id)}
-                    >
-                        View
-                    </button>
-                    <button
-                        className="text-red-600 hover:underline"
-                        onClick={() => console.log("Cancel order", order._id)}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            );
+            return <CancelOrder order={order} />;
         },
     },
 ];

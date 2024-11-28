@@ -23,6 +23,8 @@ export const baseApi = createApi({
         "SingleMenu",
         "Stuff",
         "SingleStuff",
+        "Order",
+        "SingleOrder",
     ],
 
     endpoints: () => ({}),

@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
+import AppProvider from "@/provider/app-provider";
+import NProgress from "@/provider/nProgress";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { PT_Sans_Narrow, Pacifico } from "next/font/google";
-import AppProvider from "@/provider/app-provider";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -36,6 +37,7 @@ export default function RootLayout({
                 <html lang="en">
                     <body className={cn(narrow.className, "antialiased")}>
                         {children}
+                        <NProgress />
                         <Toaster richColors />
                     </body>
                 </html>

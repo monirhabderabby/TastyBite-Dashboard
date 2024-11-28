@@ -105,3 +105,29 @@ export type TFoodFeedback = {
     review: string;
     rating: number;
 };
+
+type OrderStatus =
+    | "Order Placed"
+    | "Order Confirmed"
+    | "Cooking"
+    | "Out For Delivery"
+    | "Delivered"
+    | "PickedUp"
+    | "Cancelled";
+
+export type TOrder = {
+    _id: string; // ObjectId as a string
+    user: TUser; // User who placed the order
+    foods: [{ foodId: TFood; quantity: number; _id: string }]; // Array of food IDs
+    paymentStatus: "Paid" | "Pending"; // Payment status of the order
+    transactionId?: string | null; // Optional transaction ID
+    invoiceId?: string | null; // Optional invoice ID
+    isCancelled: boolean; // Indicates if the order is cancelled
+    isCompleted: boolean; // Indicates if the order is completed
+    deliveryMan?: TUser | null; // Optional delivery person information
+    orderStatus: OrderStatus; // Current status of the order
+    deliveryLocation: string; // Name of the city for delivery
+    totalPrice: number; // Total price of the order
+    createdAt: string; // ISO date string for order creation
+    updatedAt: string; // ISO date string for the last update
+};
