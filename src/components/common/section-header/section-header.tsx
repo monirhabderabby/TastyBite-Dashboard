@@ -19,10 +19,7 @@ const SectionHeader: React.FC<Props> = ({ title, subTitle, btnLink }) => {
             </div>
             {btnLink && (
                 <Link href={btnLink}>
-                    <Button
-                        className="text-sm bg-primary-black hover:bg-primary-orange text-white hover:text-primary-black rounded-md px-3 py-2 duration-300"
-                        size="sm"
-                    >
+                    <Button className="text-sm" size="sm">
                         <Plus className="h-4 w-4" />
                         Add New
                     </Button>
