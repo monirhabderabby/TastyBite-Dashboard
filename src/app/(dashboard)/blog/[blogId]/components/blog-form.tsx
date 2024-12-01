@@ -36,6 +36,7 @@ import {
     useUpdateBlogMutation,
 } from "@/redux/features/blog/blogApi";
 import { TBlog } from "@/types";
+import { BlogSchema } from "@/types/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { ChevronsUpDown, Loader, MapPin } from "lucide-react";
@@ -44,22 +45,6 @@ import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-
-const FormSchema = z.object({
-    clerkId: z.string().optional(),
-    title: z.string().min(3, {
-        message: "Blog title is required.",
-    }),
-    blogCategory: z.string().min(1, {
-        message: "Blog category is required.",
-    }),
-    description: z.string().min(5, {
-        message: "Blog description required.",
-    }),
-    image: z.string().min(1, {
-        message: "Blog image required.",
-    }),
-});
 
 const BlogForm = ({ blog }: { blog: TBlog }) => {
     const [active, setActive] = useState<
@@ -71,8 +56,8 @@ const BlogForm = ({ blog }: { blog: TBlog }) => {
     const formTitle = blog ? "Update Blog" : "Create Blog";
     const description = blog ? "Update this blog" : "Add a new blog";
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const form = useForm<z.infer<typeof BlogSchema>>({
+        resolver: zodResolver(BlogSchema),
         defaultValues: {
             title: blog ? blog.title : "",
             blogCategory: blog ? blog.blogCategory : "",
@@ -102,7 +87,7 @@ const BlogForm = ({ blog }: { blog: TBlog }) => {
     ] = useDeleteBlogMutation();
 
     // Form submit function
-    async function onSubmit(data: z.infer<typeof FormSchema>) {
+    async function onSubmit(data: z.infer<typeof BlogSchema>) {
         try {
             if (blog) {
                 await updateBlog({ body: data, id: blog._id });
