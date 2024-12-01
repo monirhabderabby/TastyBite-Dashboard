@@ -19,6 +19,7 @@ import {
     useDeleteStuffMutation,
     useUpdateStuffMutation,
 } from "@/redux/features/stuff/stuffApi";
+import { StuffSchema } from "@/types/schema";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
@@ -28,30 +29,6 @@ import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-
-const FormSchema = z.object({
-    email: z.string().optional(),
-    name: z.string().min(3, {
-        message: "Stuff name required.",
-    }),
-    phoneNo: z.string().min(5, {
-        message: "Stuff phone number required.",
-    }),
-    designation: z.string().min(1, {
-        message: "Stuff designation required.",
-    }),
-    address: z.string().min(1, {
-        message: "Stuff address required.",
-    }),
-    bio: z.string().optional(),
-    facebookLink: z.string().optional(),
-    linkedinLink: z.string().optional(),
-    instagramLink: z.string().optional(),
-    youtubeLink: z.string().optional(),
-    image: z.string().min(1, {
-        message: "Stuff image required.",
-    }),
-});
 
 export interface stuffProps {
     _id: string;
@@ -78,8 +55,8 @@ const StuffForm = ({ stuff }: { stuff: stuffProps }) => {
     const router = useRouter();
     const id = useId();
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const form = useForm<z.infer<typeof StuffSchema>>({
+        resolver: zodResolver(StuffSchema),
         defaultValues: {
             email: stuff ? stuff.email : "",
             name: stuff ? stuff.name : "",
@@ -118,7 +95,7 @@ const StuffForm = ({ stuff }: { stuff: stuffProps }) => {
     ] = useDeleteStuffMutation();
 
     // Form submit function
-    async function onSubmit(data: z.infer<typeof FormSchema>) {
+    async function onSubmit(data: z.infer<typeof StuffSchema>) {
         try {
             if (stuff) {
                 await updateStuff({ body: data, id: stuff._id });

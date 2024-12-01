@@ -36,6 +36,7 @@ import {
 } from "@/redux/features/food/foodApi";
 import { useGetAllMenusQuery } from "@/redux/features/menu/menuApi";
 import { TMenu } from "@/types";
+import { FoodSchema } from "@/types/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { ChevronsUpDown, Loader, MapPin } from "lucide-react";
@@ -44,37 +45,6 @@ import { useEffect, useId, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-
-const sizesItemSchema = z.object({
-    size: z.string().min(1, "Size is required"),
-    price: z.coerce.number().min(1, "Price must be a positive number"),
-    description: z.string().min(1, "Description is required"),
-});
-
-const extraItemSchema = z.object({
-    name: z.string(),
-    extra_price: z.coerce.number(),
-});
-
-const FormSchema = z.object({
-    name: z.string().min(3, {
-        message: "Food name required.",
-    }),
-    description: z.string().min(5, {
-        message: "Food description required.",
-    }),
-    price: z.coerce.number().min(1, {
-        message: "Price must be a positive number.",
-    }),
-    images: z.array(z.string().min(1)).min(1, {
-        message: "Food images are required.",
-    }),
-    menuId: z.string().min(1, {
-        message: "Menu is required",
-    }),
-    sizes: z.array(sizesItemSchema).optional(),
-    extras: z.array(extraItemSchema).optional(),
-});
 
 interface singleFoodProps {
     _id: string;
@@ -134,8 +104,8 @@ const FoodForm = ({ food }: { food: singleFoodProps }) => {
         },
     ] = useDeleteFoodMutation();
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const form = useForm<z.infer<typeof FoodSchema>>({
+        resolver: zodResolver(FoodSchema),
         defaultValues: {
             name: food ? food.name : "",
             description: food ? food.description : "",
@@ -164,7 +134,7 @@ const FoodForm = ({ food }: { food: singleFoodProps }) => {
     });
 
     // Submit form
-    async function onSubmit(data: z.infer<typeof FormSchema>) {
+    async function onSubmit(data: z.infer<typeof FoodSchema>) {
         try {
             if (food) {
                 await updateFood({ body: data, id: food._id });
