@@ -19,6 +19,7 @@ import {
     useDeleteMenuMutation,
     useUpdateMenuMutation,
 } from "@/redux/features/menu/menuApi";
+import { MenuSchema } from "@/types/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader } from "lucide-react";
@@ -28,18 +29,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { foodMenuProps } from "../../components/menu-columns";
-
-const FormSchema = z.object({
-    name: z.string().min(3, {
-        message: "Menu name required.",
-    }),
-    description: z.string().min(5, {
-        message: "Menu description required.",
-    }),
-    image: z.string().min(1, {
-        message: "Menu image required.",
-    }),
-});
 
 const MenuForm = ({ menu }: { menu: foodMenuProps }) => {
     const formTitle = menu ? "Update Menu" : "Create Menu";
@@ -51,8 +40,8 @@ const MenuForm = ({ menu }: { menu: foodMenuProps }) => {
     const router = useRouter();
     const id = useId();
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const form = useForm<z.infer<typeof MenuSchema>>({
+        resolver: zodResolver(MenuSchema),
         defaultValues: {
             name: menu ? menu.name : "",
             description: menu ? menu.description : "",
@@ -83,7 +72,7 @@ const MenuForm = ({ menu }: { menu: foodMenuProps }) => {
     ] = useDeleteMenuMutation();
 
     // Form submit function
-    async function onSubmit(data: z.infer<typeof FormSchema>) {
+    async function onSubmit(data: z.infer<typeof MenuSchema>) {
         try {
             if (menu) {
                 await updateMenu({ body: data, id: menu._id });
