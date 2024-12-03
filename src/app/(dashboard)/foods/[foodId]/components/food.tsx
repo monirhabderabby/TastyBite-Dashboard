@@ -12,7 +12,7 @@ const Food = ({ foodId }: { foodId: string }) => {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-[70vh]">
-                <Loader className="w-10 h-10 animate-spin opacity-50" />
+                <Loader className="w-9 h-9 animate-spin opacity-50" />
             </div>
         );
     }
