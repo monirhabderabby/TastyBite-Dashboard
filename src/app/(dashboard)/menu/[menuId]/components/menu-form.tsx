@@ -242,11 +242,21 @@ const MenuForm = ({ menu }: { menu: foodMenuProps }) => {
                         type="submit"
                         disabled={isLoading || updateMenuLoading}
                     >
-                        {menu ? "Update" : "Submit"}
+                        {menu ? "Update" : "Create"}
                         {(isLoading || updateMenuLoading) && (
                             <Loader className="w-5 h-5 animate-spin" />
                         )}
                     </Button>
+                    {menu && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="ml-3"
+                            onClick={() => router.back()}
+                        >
+                            Back
+                        </Button>
+                    )}
                 </form>
             </Form>
         </div>

@@ -423,11 +423,21 @@ const StuffForm = ({ stuff }: { stuff: stuffProps }) => {
                         type="submit"
                         disabled={isLoading || updateStuffLoading}
                     >
-                        {stuff ? "Update" : "Submit"}
+                        {stuff ? "Update" : "Create"}
                         {(isLoading || updateStuffLoading) && (
                             <Loader className="w-5 h-5 animate-spin" />
                         )}
                     </Button>
+                    {stuff && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="ml-3"
+                            onClick={() => router.back()}
+                        >
+                            Back
+                        </Button>
+                    )}
                 </form>
             </Form>
         </div>
