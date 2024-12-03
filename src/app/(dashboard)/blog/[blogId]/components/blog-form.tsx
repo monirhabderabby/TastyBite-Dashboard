@@ -345,11 +345,21 @@ const BlogForm = ({ blog }: { blog: TBlog }) => {
                         type="submit"
                         disabled={isLoading || updateBlogLoading}
                     >
-                        {blog ? "Update" : "Submit"}
+                        {blog ? "Update" : "Create"}
                         {(isLoading || updateBlogLoading) && (
                             <Loader className="w-5 h-5 animate-spin" />
                         )}
                     </Button>
+                    {blog && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="ml-3"
+                            onClick={() => router.back()}
+                        >
+                            Back
+                        </Button>
+                    )}
                 </form>
             </Form>
         </div>

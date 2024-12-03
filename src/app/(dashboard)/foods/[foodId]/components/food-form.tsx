@@ -595,11 +595,21 @@ const FoodForm = ({ food }: { food: singleFoodProps }) => {
                         type="submit"
                         disabled={isLoading || foodUpdateLoading}
                     >
-                        {food ? "Update" : "Submit"}
+                        {food ? "Update" : "Create"}
                         {(isLoading || foodUpdateLoading) && (
                             <Loader className="w-5 h-5 animate-spin" />
                         )}
                     </Button>
+                    {food && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="ml-3"
+                            onClick={() => router.back()}
+                        >
+                            Back
+                        </Button>
+                    )}
                 </form>
             </Form>
         </div>
