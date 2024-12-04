@@ -12,7 +12,7 @@ import { useUpdateOrderStatusMutation } from "@/redux/features/order/orderApi";
 import { TOrder } from "@/types";
 import { useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -31,8 +31,7 @@ const UpdateStatus = ({ order }: { order: TOrder }) => {
 
     const { user: clerkUser } = useUser();
 
-    const [updateOrderStatus, { isLoading, isSuccess }] =
-        useUpdateOrderStatusMutation();
+    const [updateOrderStatus, { isSuccess }] = useUpdateOrderStatusMutation();
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         if (clerkUser?.publicMetadata?.role === "admin") {
@@ -71,8 +70,8 @@ const UpdateStatus = ({ order }: { order: TOrder }) => {
                                         form.handleSubmit(onSubmit)();
                                     }}
                                     defaultValue={field.value}
+                                    value={field.value}
                                     disabled={
-                                        isLoading ||
                                         ![
                                             "Order Placed",
                                             "Order Confirmed",
@@ -96,6 +95,8 @@ const UpdateStatus = ({ order }: { order: TOrder }) => {
                                         <SelectItem value="Cooking">
                                             Cooking
                                         </SelectItem>
+                                        {order.orderStatus ===
+                                            "Out For Delivery" && <span></span>}
                                     </SelectContent>
                                 </Select>
                             </FormItem>
@@ -107,4 +108,4 @@ const UpdateStatus = ({ order }: { order: TOrder }) => {
     );
 };
 
-export default UpdateStatus;
+export default memo(UpdateStatus);

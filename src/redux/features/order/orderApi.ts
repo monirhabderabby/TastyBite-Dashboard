@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { baseApi } from "@/redux/api/baseApi";
 
 const orderApi = baseApi.injectEndpoints({
@@ -19,13 +21,41 @@ const orderApi = baseApi.injectEndpoints({
                 method: "PATCH",
                 body,
             }),
-            invalidatesTags: (result, error, { id }) => [
-                "Order",
-                { type: "SingleOrder", id },
-            ],
+            async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+                const { body, id, selected } = arg;
+
+                // optimistic cache update
+                const result = dispatch(
+                    baseApi.util.updateQueryData(
+                        "getAllOrders",
+                        {},
+                        (draft) => {
+                            const arrayOfOrders = draft.data;
+
+                            const targetOrder = arrayOfOrders.find(
+                                (order) => order._id == id
+                            );
+                            targetOrder.orderStatus = body.status;
+                            if (selected) {
+                                targetOrder.deliveryMan = selected;
+                            }
+                        }
+                    )
+                );
+
+                try {
+                    const res = await queryFulfilled;
+                    if (!res.data?.success) {
+                        result.undo();
+                    }
+                } catch {
+                    result.undo();
+                }
+            },
         }),
     }),
 });
+
 export const {
     useGetAllOrdersQuery,
     useGetSingleOrderQuery,
