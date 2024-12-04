@@ -1,3 +1,4 @@
+import CheckAdmin from "@/components/check-admin/check-admin";
 import { cn } from "@/lib/utils";
 import AppProvider from "@/provider/app-provider";
 import NProgress from "@/provider/nProgress";
@@ -36,7 +37,7 @@ export default function RootLayout({
             <AppProvider>
                 <html lang="en">
                     <body className={cn(narrow.className, "antialiased")}>
-                        {children}
+                        <CheckAdmin>{children}</CheckAdmin>
                         <NProgress />
                         <Toaster richColors />
                     </body>
