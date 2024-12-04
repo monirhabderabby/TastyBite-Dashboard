@@ -12,7 +12,7 @@ import { useUpdateOrderStatusMutation } from "@/redux/features/order/orderApi";
 import { TOrder } from "@/types";
 import { useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -51,10 +51,6 @@ const UpdateStatus = ({ order }: { order: TOrder }) => {
             toast.success("Order status updated successfully");
         }
     }, [isSuccess]);
-
-    useEffect(() => {
-        form.setValue("orderStatus", order.orderStatus);
-    }, [form, order.orderStatus]);
 
     return (
         <div className="w-fit">
@@ -99,6 +95,8 @@ const UpdateStatus = ({ order }: { order: TOrder }) => {
                                         <SelectItem value="Cooking">
                                             Cooking
                                         </SelectItem>
+                                        {order.orderStatus ===
+                                            "Out For Delivery" && <span></span>}
                                     </SelectContent>
                                 </Select>
                             </FormItem>
@@ -110,4 +108,4 @@ const UpdateStatus = ({ order }: { order: TOrder }) => {
     );
 };
 
-export default UpdateStatus;
+export default memo(UpdateStatus);

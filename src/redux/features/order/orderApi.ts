@@ -22,7 +22,7 @@ const orderApi = baseApi.injectEndpoints({
                 body,
             }),
             async onQueryStarted(arg, { queryFulfilled, dispatch }) {
-                const { body, id } = arg;
+                const { body, id, selected } = arg;
 
                 // optimistic cache update
                 const result = dispatch(
@@ -36,6 +36,9 @@ const orderApi = baseApi.injectEndpoints({
                                 (order) => order._id == id
                             );
                             targetOrder.orderStatus = body.status;
+                            if (selected) {
+                                targetOrder.deliveryMan = selected;
+                            }
                         }
                     )
                 );
