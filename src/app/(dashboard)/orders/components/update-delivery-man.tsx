@@ -13,7 +13,7 @@ import { useGetAllDeliveryManQuery } from "@/redux/features/user/userApi";
 import { TOrder, TUser } from "@/types";
 import { useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -47,6 +47,9 @@ const UpdateDeliveryMan = ({ order }: { order: TOrder }) => {
         useUpdateOrderStatusMutation();
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
+        const selectedDeliveryMan = deliveryManData?.data.find(
+            (man: TUser) => man._id === data.deliveryManId
+        );
         if (clerkUser?.publicMetadata?.role === "admin") {
             updateOrderStatus({
                 id: order._id,
@@ -54,6 +57,7 @@ const UpdateDeliveryMan = ({ order }: { order: TOrder }) => {
                     status: "Out For Delivery",
                     deliveryMan: data.deliveryManId,
                 },
+                selected: selectedDeliveryMan,
             });
         } else {
             toast.error("You do not have permission to update the order.");
@@ -111,4 +115,4 @@ const UpdateDeliveryMan = ({ order }: { order: TOrder }) => {
     );
 };
 
-export default UpdateDeliveryMan;
+export default memo(UpdateDeliveryMan);
