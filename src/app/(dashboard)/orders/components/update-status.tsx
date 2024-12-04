@@ -31,8 +31,7 @@ const UpdateStatus = ({ order }: { order: TOrder }) => {
 
     const { user: clerkUser } = useUser();
 
-    const [updateOrderStatus, { isLoading, isSuccess }] =
-        useUpdateOrderStatusMutation();
+    const [updateOrderStatus, { isSuccess }] = useUpdateOrderStatusMutation();
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         if (clerkUser?.publicMetadata?.role === "admin") {
@@ -53,6 +52,10 @@ const UpdateStatus = ({ order }: { order: TOrder }) => {
         }
     }, [isSuccess]);
 
+    useEffect(() => {
+        form.setValue("orderStatus", order.orderStatus);
+    }, [form, order.orderStatus]);
+
     return (
         <div className="w-fit">
             <Form {...form}>
@@ -71,8 +74,8 @@ const UpdateStatus = ({ order }: { order: TOrder }) => {
                                         form.handleSubmit(onSubmit)();
                                     }}
                                     defaultValue={field.value}
+                                    value={field.value}
                                     disabled={
-                                        isLoading ||
                                         ![
                                             "Order Placed",
                                             "Order Confirmed",
