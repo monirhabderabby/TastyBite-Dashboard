@@ -146,7 +146,7 @@ export const OrderColumns: ColumnDef<TOrder>[] = [
             const { deliveryLocation } = row.original || {};
             return (
                 <span className="text-sm text-gray-800">
-                    {deliveryLocation}
+                    {deliveryLocation.streetAndNumber}
                 </span>
             );
         },

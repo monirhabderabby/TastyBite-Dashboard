@@ -115,6 +115,18 @@ type OrderStatus =
     | "PickedUp"
     | "Cancelled";
 
+export type TAddress = {
+    _id?: string;
+    name?: string;
+    streetAndNumber: string;
+    place: string;
+    region: string;
+    postcode: string;
+    country: string;
+    latitude: number;
+    longitude: number;
+};
+
 export type TOrder = {
     _id: string; // ObjectId as a string
     user: TUser; // User who placed the order
@@ -126,7 +138,7 @@ export type TOrder = {
     isCompleted: boolean; // Indicates if the order is completed
     deliveryMan?: TUser | null; // Optional delivery person information
     orderStatus: OrderStatus; // Current status of the order
-    deliveryLocation: string; // Name of the city for delivery
+    deliveryLocation: TAddress; // Name of the city for delivery
     totalPrice: number; // Total price of the order
     createdAt: string; // ISO date string for order creation
     updatedAt: string; // ISO date string for the last update
