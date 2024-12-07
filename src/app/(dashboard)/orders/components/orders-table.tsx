@@ -2,12 +2,12 @@
 
 // Packages
 import {
-    ColumnDef,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
+  ColumnDef,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
 import React, { useMemo } from "react";
 
@@ -23,84 +23,80 @@ import { TOrder } from "@/types";
 import { OrderColumns } from "./order-columns";
 
 const OrdersTable: React.FC = () => {
-    const { data: orders, isLoading } = useGetAllOrdersQuery({});
+  const { data: orders, isLoading } = useGetAllOrdersQuery({});
 
-    if (isLoading) {
-        return <TableSkeleton rows={15} columns={8} />;
-    }
+  if (isLoading) {
+    return <TableSkeleton rows={15} columns={8} />;
+  }
 
-    return (
-        <div>
-            <TableContainer data={orders?.data} columns={OrderColumns} />
-        </div>
-    );
+  return (
+    <div>
+      <TableContainer data={orders?.data} columns={OrderColumns} />
+    </div>
+  );
 };
 
 export default OrdersTable;
 
 interface TableContainerProps {
-    data: TOrder[];
-    columns: ColumnDef<TOrder>[];
+  data: TOrder[];
+  columns: ColumnDef<TOrder>[];
 }
 
 const TableContainer: React.FC<TableContainerProps> = ({ data, columns }) => {
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  const orderStatusOptions = useMemo(() => {
+    const orderStatusMap = new Map();
+
+    data?.forEach((order) => {
+      orderStatusMap.set(order.orderStatus, {
+        value: order.orderStatus,
+        label: order.orderStatus,
+      });
     });
 
-    const orderStatusOptions = useMemo(() => {
-        const orderStatusMap = new Map();
+    const uniqueStatus = new Set(orderStatusMap.values());
 
-        data?.forEach((order) => {
-            orderStatusMap.set(order.orderStatus, {
-                value: order.orderStatus,
-                label: order.orderStatus,
-            });
-        });
+    return Array.from(uniqueStatus);
+  }, [data]);
 
-        const uniqueStatus = new Set(orderStatusMap.values());
+  return (
+    <div>
+      <div className="flex justify-between items-center py-4">
+        <Input
+          placeholder="Filter by transaction id"
+          value={
+            (table.getColumn("transactionId")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            table.getColumn("transactionId")?.setFilterValue(event.target.value)
+          }
+          className="max-w-[300px] focus-visible:ring-[#3a6f54]"
+        />
 
-        return Array.from(uniqueStatus);
-    }, [data]);
-
-    return (
-        <div>
-            <div className="flex justify-between items-center py-4">
-                <Input
-                    placeholder="Filter by transaction id"
-                    value={
-                        (table
-                            .getColumn("transactionId")
-                            ?.getFilterValue() as string) ?? ""
-                    }
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                        table
-                            .getColumn("transactionId")
-                            ?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-[300px] focus-visible:ring-[#3a6f54]"
-                />
-
-                <div className="flex items-center gap-x-2">
-                    <DataTableFacetedFilter
-                        title="Order Status"
-                        column={table.getColumn("orderStatus")}
-                        options={orderStatusOptions}
-                    />
-                    <DataTableViewOptions table={table} />
-                </div>
-            </div>
-            <DataTable columns={columns} table={table} />
-            {data?.length > 10 && (
-                <div className="mt-4">
-                    <DataTablePagination table={table} />
-                </div>
-            )}
+        <div className="flex items-center gap-x-2">
+          <DataTableFacetedFilter
+            title="Order Status"
+            column={table.getColumn("orderStatus")}
+            options={orderStatusOptions}
+          />
+          <DataTableViewOptions table={table} />
         </div>
-    );
+      </div>
+      <DataTable columns={columns} table={table} />
+      {data?.length > 10 && (
+        <div className="mt-4">
+          <DataTablePagination table={table} />
+        </div>
+      )}
+    </div>
+  );
 };
