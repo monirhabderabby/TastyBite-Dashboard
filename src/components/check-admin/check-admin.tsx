@@ -1,9 +1,7 @@
 "use client";
 
 import { useClerk, useUser } from "@clerk/nextjs";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import Logo from "../ui/Logo";
 
 const CheckAdmin = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoaded } = useUser();
@@ -17,7 +15,6 @@ const CheckAdmin = ({ children }: { children: React.ReactNode }) => {
         setIsRoleTracked(true); // Grant access if the role is admin
       } else {
         signOut({ redirectUrl: "/sign-in" }); // Redirect non-admin users to sign-in page
-        console.log("You are not an admin. Go out.");
       }
     }
   }, [isLoaded, user, signOut]);
@@ -36,12 +33,14 @@ export default CheckAdmin;
 
 const Message = ({ message }: { message: string }) => {
   return (
-    <div className="min-h-screen w-full flex flex-col justify-center items-center opacity-80 gap-y-5">
-      <div className="flex flex-col justify-center items-center">
-        <Loader2 className="animate-spin opacity-50" />
-        {message}
+    <div className="min-h-screen w-full flex flex-col justify-center items-center opacity-80 gap-y-3">
+      <div className="font-courgette text-black font-semibold text-[40px]">
+        <span className="text-primary-orange">Tasty</span>Bite
       </div>
-      <Logo />
+      <div className="flex flex-col justify-center items-center">
+        <div className="loader" />
+        <div className="mt-2">{message}</div>
+      </div>
     </div>
   );
 };
