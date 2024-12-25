@@ -23,7 +23,6 @@ const WeeklyRevenueChart = dynamic(() => import("./weekly-revenue-chart"));
 
 const OverviewPage = () => {
     const { data, isLoading, isError } = useGetAllStatsQuery({});
-    console.log(data);
 
     let content;
     if (isLoading || data) {
